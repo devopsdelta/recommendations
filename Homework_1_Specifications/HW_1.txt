@@ -1,0 +1,90 @@
+
+Title
+HW-1 Create a RESTful Service
+Due
+Oct 18, 2017 5:00 pm
+
+NYU DevOps Project HW1 - Create a RESTful Service
+Welcome to the first project assignment for CSCI-GA.3033-014 DevOps Fall 2017. Since one of the fundamental tenets of DevOps is Collaboration, this will be a group project. This assignment is due in four weeks on October 18th. Note: that 4 weeks is two Sprints for an Agile team so your team should plan to complete it in two, 2 week sprints. At the end of the first two week sprint you should have something to demo. It’s OK if all you have to demo is passing test cases. You decide how much to do in the first sprint. At the end of the second sprint the remainder of the homework should be complete. We will conduct a class Sprint Review meeting on October 18th where each team will demo their service in class.
+Scenario
+In the spirit of how Spotify is organized into autonomous squads that have end-to-end responsibility for a piece of the entire Spotify service, you have been asked to develop an eCommerce web site backend as a collection RESTful services for a client. The class will be divided into 9 squads, each squad will develop and run one the following 9 services end-to-end:
+Service Resource
+Squads
+Description
+/customers
+Alpha
+Basic customer into (name, address, etc.)
+/orders
+Bravo
+A collection of order items created from products (prod id, qty, price, etc.)
+/products
+Charlie
+Products for a catalog (id, name, description, price. etc.)
+/recommendations
+Delta
+A relationship between two products (prod a, prod b)
+/shopcarts
+Echo
+A collection of products to buy
+/inventory
+Foxtrot
+The count of how many of each product we have
+/wishlists
+Golf
+A collection of products I wish I had
+/payments
+Hotel
+Several methods of payment (cash, credit, debit)
+/promotions
+India
+Sales on products (e.g., buy 2 get 1 free, 20% off)
+The primary requirement for creating these services is that they must be RESTful according to the guidelines that we will learn in class. Each service must support the complete Create, Read, Update, & Delete (CRUD) lifecycle calls plus List, Query, and at least one Action. This is the list of expected functions:
+	•	List Resources
+	•	Read a Resource
+	•	Create a Resource
+	•	Update a Resource
+	•	Delete a Resource
+	•	Query Resources by some attribute of the Resource
+	•	Perform some Action on the Resource
+This assignment is in two parts and will bring together everything you have learned in the first half of the semester before deploying to the cloud.
+This homework is worth 20% of your over all grade. It will be graded as 20 points total.
+HW1-Part 1: Agile Development and Planning
+We want to simulate what a real Agile development team would do to plan out their sprints. To this end, you need to create a Backlog of Stories and two Milestones to plan your sprints. You will need to:
+Initial Project Setup
+	•	See the DevOps-Squads.pdf on NYU Classes Resources to identify what squad/team you are in.
+	•	Nominate one person on your team to create a GitHub Organization for your squad. Invite others members of the team to your GitHub Organization.
+	•	Create Repository for your project under the squad’s Organization. The name of the repository should match the name of the Resource that you are developing (e.g., customers, orders, etc.) Make sure that the repository is Public and the name is all lowercase.
+	•	I will create a Slack channel of the same name (e.g., customers, orders, etc.) and invite all of the members of the squad to your Slack channel.
+Execute
+	•	Nominate someone to be the Product Owner and Scrum Master for the first Sprint. You might want to rotate this assignment each sprint so that everyone gets a chance to play each role.
+	•	Write Stories (as Github Issues) to plan the work needed to create the service. You will need at least 8/10 Stories (depending on the number of people on your team) but you can write as many more as you'd like and are encouraged to do so. (hint: see Part 2 for Story ideas)
+	•	Ensure that the Stories follow the template that we studied in class (i.e. As A, I Need, So That).
+	•	Be certain to think MVP (Minimal Viable Product). Make your stories small. Get basic functionality working first, then add more features later.
+	•	Conduct a Backlog Grooming session to Order your Backlog of Stories from most important to least important
+	•	Create a "technical debt" label that is yellow and add appropriate labels to all of your stories
+	•	Assign Story Points to all of the Stories in the first Sprint (stick with 2,5,8 = S,M,L for now)
+	•	Create a Milestone for your first Sprint and add Stories for the first Milestone to create your Sprint Plan (i.e., name them Sprint 1, Sprint 2, etc.). Add only those stories that you believe you will complete in the first two week sprint. Don’t forget to include a brief Sprint Goal as the description of the Milestone.
+	•	As you execute this plan using ZenHub, each member of your squad should assign a Story to themselves, move it to In Process, and begin working on it. When completed, move the Story to Done (not Closed) until you have a Sprint Review and the Product Owner declares it Closed.
+	•	Create a Burndown chart to track your progress.
+What I am looking for is your understanding of how a self-directed Agile team works. You won't be telling me who did what. I should be able to look at the Kanban board from ZenHub and determine exactly what was done, and who completed which story. This should also help you understand where you are in the assignment and if you will reach your sprint goal of submitting your homework on time! I want to see Milestones with Burndown charts, Story Points, Labels, etc.
+Please submit the URL of your group's GitHub repository to complete Part 1 of this homework. Each student must submit a URL individually.
+This part is worth 8 points.
+HW1-Part 2: Develop the RESTful Service locally
+In Part 2 we will use Test Driven Development techniques to develop the service based on the Stories you wrote in Part 1. Start by creating tests for the Model that represents your resource and develop the code for it so that the tests pass. Then create tests for the RESTful Flask service that uses the model and develop the code for that. Don’t forget to write test cases to test if the proper RESTful return codes and headers are being returned.
+You will need to:
+	•	Create a Vagrantfile so that members of the team can quickly get a development environment running
+	•	The Vagrantfile should install all of the needed software to run the service so that the all a team member needs to do is vagrant up && vagrant ssh and be able to start developing.
+	•	If needed, use Docker inside of Vagrant for any 3rd part services you want to use. e.g., if you use a Redis, MongoDB, PostgreSQL, MySQL database, etc. it should be installed using Docker. Note: You do not need to use persistence for this first assignment.
+	•	Start developing by creating the TDD test_xxx.py files that contains your Unit Tests to test your service and model.
+	•	Decide whether you want to use the standard PyUnit syntax or Expect syntax. The choice is up to you. You only need to use one or the other.
+	•	There should be tests for each of Create, Read, Update, Delete, List, Query, Action, traversing both happy paths and sad paths
+	•	Run these tests using nosetest as you develop the code making them all green (passing)
+	•	Use the coverage tool to measure your test coverage. Your goal is get it above 90% for full credit.
+	•	Continue to write Stories (as Github Issues) to plan the work of your second Sprint needed and add them to your Backlog.
+	•	Conduct a Grooming and Sprint Planning meeting to discuss the Backlog and order the Stories by priority for your second Sprint.
+	•	Set up your Milestones and Burndown chart so that you can track your progress.
+	•	Move these Stories through the ZenHub pipeline as you work on them just like you did in part 1
+Think about what you need to do in this part and make sure that there is a Story to cover the work. (hint: there should be a Story for someone to create the Vagrantfile for everyone else to use and it should be pretty high up in the Backlog.)
+This part will be judged by my ability to clone your project, issue vagrant up, and run nosetests and see all of the tests pass, as well as run your service in a VM so that I can see it running. Make sure all of that works. I will also be grading on how RESTful and complete your API is. Make sure that the URI’s follow RESTful conventions and that the proper returns codes are used as covered in the lectures.
+What I am also looking for is a demonstration of your understanding of how write good test cases. I am also looking for good code testing coverage. You must achieve over 90% code coverage for full credit.
+This part is worth 12 points.
