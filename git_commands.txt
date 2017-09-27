@@ -1,0 +1,22 @@
+1. Clone to create repo locally
+ git clone https://github.com/devopsdelta/recommendations.git
+
+2. Create new branch for each issues
+  git checkout -b << New Branch Name >>
+
+
+
+Common Git Commands
+
+git status
+
+git pull origin <<Name of branch>>
+
+git add -A                         * This will add all tracked and untracked files with diffs
+git add .                          * Will add just files that are tracked in the directory that you are currently in
+
+git commit -m "Quick message about what this commit is about"
+
+git diff                           * Use to compare your current changes to the remote branch
+
+git push origin <<Name of branch>> * Name of the branch in the remote (GitHub) 
