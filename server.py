@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 # Pull options from environment
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
-PORT = os.getenv('PORT', '5000')
+PORT = os.getenv('PORT', '8080')
 
 ######################################################################
 # Error Handlers
@@ -162,7 +162,7 @@ def update_recommendations(recommendation_id):
 # DELETE A RECOMMENDATION
 ######################################################################
 @app.route('/recommendations/<int:recommendation_id>', methods=['DELETE'])
-def delete_recommendations(recommendations_id):
+def delete_recommendations(recommendation_id):
     """
     Delete a Recommendation
 
