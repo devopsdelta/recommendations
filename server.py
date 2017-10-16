@@ -22,7 +22,7 @@ from models import Recommendation, DataValidationError
 app = Flask(__name__)
 
 # Pull options from environment
-DEBUG = (os.getenv('DEBUG', 'False') == 'True')
+DEBUG = True #(os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '8080')
 
 ######################################################################
@@ -54,13 +54,6 @@ def method_not_supported(error):
     app.logger.info(message)
     return jsonify(status=405, error='Method not Allowed', message=message), 405
 
-@app.errorhandler(415)
-def mediatype_not_supported(error):
-    """ Handles unsuppoted media requests with 415_UNSUPPORTED_MEDIA_TYPE """
-    message = error.message or str(error)
-    app.logger.info(message)
-    return jsonify(status=415, error='Unsupported media type', message=message), 415
-
 @app.errorhandler(500)
 def internal_server_error(error):
     """ Handles unexpected server error with 500_SERVER_ERROR """
@@ -68,14 +61,13 @@ def internal_server_error(error):
     app.logger.info(message)
     return jsonify(status=500, error='Internal Server Error', message=message), 500
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
 @app.route('/')
 def index():
     """ Root URL response """
-    return jsonify(name='Recommendations Demo REST API Service',
+    return jsonify(name='Recommendation Demo REST API Service',
                    version='1.0',
                    paths=url_for('list_recommendations', _external=True)
                   ), status.HTTP_200_OK
@@ -86,17 +78,23 @@ def index():
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
     """ Returns all of the Recommendations """
+    category = request.args.get('category')
     recommendations = []
+    results = []
 
-    recommendations = Recommendation.all()
+    if category:
+        recommendations = Recommendation.find_by_category(category)
+    else:
+        recommendations = Recommendation.all()
 
-    results = [recommendation.serialize() for recommendation in recommendations]
+    if recommendations:
+        results = [recommendation.serialize() for recommendation in recommendations]
+        return make_response(jsonify(results), status.HTTP_200_OK)
 
-    return make_response(jsonify(results), status.HTTP_200_OK)
-
+    raise NotFound("No Recommendations found.")
 
 ######################################################################
-# RETRIEVE A RECOMMENDATIONS
+# RETRIEVE A RECOMMENDATION
 ######################################################################
 @app.route('/recommendations/<int:recommendation_id>', methods=['GET'])
 def get_recommendations(recommendation_id):
@@ -105,7 +103,7 @@ def get_recommendations(recommendation_id):
 
     This endpoint will return a Recommendations based on it's id
     """
-    recommendation = Recommendation.find(recommendation_id)
+    recommendation = Recommendation.find_by_id(recommendation_id)
 
     if not recommendation:
         raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
@@ -146,7 +144,7 @@ def update_recommendations(recommendation_id):
 
     This endpoint will update a Recommendations based the body that is posted
     """
-    recommendation = Recommendation.find(recommendation_id)
+    recommendation = Recommendation.find_by_id(recommendation_id)
 
     if not recommendation:
         raise NotFound("Recommendation with id '{}' was not found.".format(recommendation_id))
@@ -168,7 +166,7 @@ def delete_recommendations(recommendation_id):
 
     This endpoint will delete a Recommendation based the id specified in the path
     """
-    recommendation = Recommendation.find(recommendation_id)
+    recommendation = Recommendation.find_by_id(recommendation_id)
 
     if recommendation:
         recommendation.delete()
