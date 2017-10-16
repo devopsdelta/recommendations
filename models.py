@@ -26,25 +26,28 @@ class Recommendation(object):
     """
     lock = threading.Lock()
     data = []
-    index = 0
 
-    def __init__(self, id=0, pid=0):
+    def __init__(self, pid=0, rec=""):
         """ Initialize a Recommendation """
-        self.id = id
-        self.product_id = pid
+        self.id = pid
+        self.recommendation = rec
 
     def save(self):
         """
         Saves a Recommendation to the data store
         """
-        if self.id == 0:
-            self.id = self.__next_index()
+
+        index = 0
+
+        for i in range(len(Recommendation.data)):
+            if (Recommendation.data[i].id != self.id):
+                continue
+            index = i
+
+        if index == 0:
             Recommendation.data.append(self)
         else:
-            for i in range(len(Recommendation.data)):
-                if Recommendation.data[i].id == self.id:
-                    Recommendation.data[i] = self
-                    break
+            Recommendation.data[index] = self
 
     def delete(self):
         """ Removes a Recommendation from the data store """
@@ -52,7 +55,7 @@ class Recommendation(object):
 
     def serialize(self):
         """ Serializes a Recommendation into a dictionary """
-        return {"id": self.id, "product_id": self.product_id}
+        return {"id": self.id, "recommendation": self.recommendation}
 
     def deserialize(self, data):
         """
@@ -63,31 +66,26 @@ class Recommendation(object):
         """
         if not isinstance(data, dict):
             raise DataValidationError('Invalid product: body of request contained bad or no data')
+
         if data.has_key('id'):
             self.id = data['id']
+
         try:
-            self.product_id = data['product_id']
+            self.recommendation = data['recommendation']
         except KeyError as err:
             raise DataValidationError('Invalid product: missing ' + err.args[0])
         return
 
     @staticmethod
-    def __next_index():
-        """ Generates the next index in a continual sequence """
-        with Recommendation.lock:
-            Recommendation.index += 1
-        return Recommendation.index
-
-    @staticmethod
     def all():
         """ Returns all of the Products in the database """
+        print Recommendation.data
         return [recommendation for recommendation in Recommendation.data]
 
     @staticmethod
     def remove_all():
         """ Removes all of the Recommendation from the database """
         del Recommendation.data[:]
-        Recommendation.index = 0
         return Recommendation.data
 
     @staticmethod
