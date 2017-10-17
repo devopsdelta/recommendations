@@ -22,7 +22,7 @@ from models import Recommendation, DataValidationError
 app = Flask(__name__)
 
 # Pull options from environment
-DEBUG = True #(os.getenv('DEBUG', 'False') == 'True')
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '8080')
 
 ######################################################################

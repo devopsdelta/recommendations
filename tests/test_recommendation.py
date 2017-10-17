@@ -121,13 +121,13 @@ class TestRecommendations(unittest.TestCase):
 
     def test_find_by_category(self):
         """ Find Recommendations by Category """
-        Recommendation(10, "{ 'id': 10, 'recommendation': { 'name': 'Product 1': 'category': 'software'}}").save()
-        Recommendation(20, "{ 'id': 20, 'recommendation': { 'name': 'Product 2': 'category': 'software'}}").save()
+        Recommendation(10, { 'name': 'Product 1', 'category': 'software'}).save()
+        Recommendation(20, { 'name': 'Product 2', 'category': 'software'}).save()
         recommendations = Recommendation.find_by_category("software")
         data = recommendations[0].recommendation
         self.assertNotEqual(len(recommendations), 0)
-        self.assertTrue('Product 1' in data)
-        self.assertTrue('software' in data)
+        self.assertTrue('Product 1' in data['name'])
+        self.assertTrue('software' in data['category'])
 
 ######################################################################
 #   M A I N

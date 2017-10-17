@@ -111,11 +111,8 @@ class Recommendation(object):
         search_criteria = value.lower()
         results = []
 
-        for index in range(len(Recommendation.data)):
-            data = Recommendation.data[index]
-
-            if search_criteria in data.recommendation.lower():
-                results.append(data)
-
-
+        for recommendation in Recommendation.data:
+            if search_criteria in recommendation.recommendation['category']:
+                results.append(recommendation)
+                
         return results

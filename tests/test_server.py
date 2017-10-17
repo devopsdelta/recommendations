@@ -27,8 +27,8 @@ class TestRecommendationServer(unittest.TestCase):
     def setUp(self):
         """ Runs before each test """
         server.Recommendation.remove_all()
-        server.Recommendation(1, "{'id': 54, 'recommendation': {'name': 'Product 1', 'category': 'shoes'}}").save()
-        server.Recommendation(2, "{'id': 23, 'recommendation': {'name': 'Product 2', 'category': 'belts'}}").save()
+        server.Recommendation(1, {'name': 'Product 1', 'category': 'shoes'}).save()
+        server.Recommendation(2, {'name': 'Product 2', 'category': 'belts'}).save()
         self.app = server.app.test_client()
 
     def tearDown(self):
@@ -54,7 +54,7 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.get('/recommendations/2')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-        self.assertEqual(data['recommendation'], "{'id': 23, 'recommendation': {'name': 'Product 2', 'category': 'belts'}}")
+        self.assertEqual(data['recommendation'], {'name': 'Product 2', 'category': 'belts'})
 
     def test_get_recommendation_not_found(self):
         """ Get a Recommendation thats not found """
@@ -134,9 +134,9 @@ class TestRecommendationServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(len(resp.data) > 0)
         data = json.loads(resp.data)[0]
-        self.assertTrue('Product 1' in data['recommendation'])
-        self.assertFalse('Product 2' in data['recommendation'])
-        self.assertTrue('shoes' in data['recommendation'])
+        self.assertTrue('Product 1' in data['recommendation']['name'])
+        self.assertFalse('Product 2' in data['recommendation']['name'])
+        self.assertTrue('shoes' in data['recommendation']['category'])
 
     def test_get_query_recommendation_not_found_by_category(self):
         """ Get a Recommendation that doesn't exist by Category """
