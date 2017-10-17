@@ -89,14 +89,30 @@ class Recommendation(object):
         return Recommendation.data
 
     @staticmethod
-    def find(recommendation_id):
+    def find_by_id(id):
         """ Finds a Recommendation by it's ID """
         if not Recommendation.data:
             return None
 
-        recommendations = [recommendation for recommendation in Recommendation.data if recommendation.id == recommendation_id]
+        recommendations = [recommendation for recommendation in Recommendation.data if recommendation.id == id]
 
         if recommendations:
             return recommendations[0]
 
         return None
+
+    @staticmethod
+    def find_by_category(value):
+        """ Finds a Recommendation by it's Category """
+
+        if not Recommendation.data:
+            return None
+
+        search_criteria = value.lower()
+        results = []
+
+        for recommendation in Recommendation.data:
+            if search_criteria in recommendation.recommendation['category']:
+                results.append(recommendation)
+                
+        return results
