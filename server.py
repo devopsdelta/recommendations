@@ -174,6 +174,59 @@ def delete_recommendations(recommendation_id):
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+# ACTION 1 ON RECOMMENDATION
+######################################################################
+@app.route('/recommendations/<int:recommendation_id>/dislike', methods=['PUT'])
+def dislike_recommendation(recommendation_id):
+    """
+    Dislike a Recommendation
+
+    This endpoint will delete a Recommendation if 5 or more users hit "dislike" URL
+    for that particular recommendation
+    """
+    recommendation = Recommendation.find_by_id(recommendation_id)
+
+    if not recommendation:
+        raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
+
+    current_value = recommendation.recommendation['dislikes']
+    modified_value = int(current_value) + 1
+
+    if(modified_value >= 5):
+        recommendation.delete()
+    else:
+        recommendation.id = recommendation_id
+        recommendation.recommendation['dislikes'] = modified_value
+        recommendation.save()
+        
+    return make_response('Thank you for your feedback! We are working on it.', status.HTTP_200_OK)
+
+######################################################################
+# ACTION 2 ON RECOMMENDATION
+######################################################################
+@app.route('/recommendations/rate', methods=['GET'])
+def rate_recommendation():
+    """
+    Rate the Recommendation app
+
+    This endpoint will return the overall rating of Recommendation app
+    """
+    recommendations = []
+
+    recommendations = Recommendation.all()
+    overall_rating = 0
+    count = 0
+
+    for recommendation in recommendations:
+        rating = recommendation.recommendation['rating']
+        overall_rating = int(overall_rating) + int(rating)
+        count += 1
+
+    rate = float(overall_rating) / float(count)
+
+    return make_response(str(rate), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 

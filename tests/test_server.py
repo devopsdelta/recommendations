@@ -27,8 +27,10 @@ class TestRecommendationServer(unittest.TestCase):
     def setUp(self):
         """ Runs before each test """
         server.Recommendation.remove_all()
-        server.Recommendation(1, {'name': 'Product 1', 'category': 'shoes'}).save()
-        server.Recommendation(2, {'name': 'Product 2', 'category': 'belts'}).save()
+        server.Recommendation(1, {'name': 'Product 1', 'category': 'shoes', 'dislikes': '3', 'rating': '2'}).save()
+        server.Recommendation(2, {'name': 'Product 2', 'category': 'belts', 'dislikes': '1', 'rating': '4'}).save()
+        server.Recommendation(3, {'name': 'Product 3', 'category': 'shirts', 'dislikes': '4', 'rating': '1'}).save()
+        server.Recommendation(4, {'name': 'Product 4', 'category': 'wallets', 'dislikes': '2', 'rating': '3'}).save()
         self.app = server.app.test_client()
 
     def tearDown(self):
@@ -47,14 +49,20 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.get('/recommendations')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 4)
+
+    def test_rate_recommendation(self):
+        """ Rating of Recommendation """
+        resp = self.app.get('/recommendations/rate')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data, '2.5')
 
     def test_get_recommendation(self):
         """ Get one Recommendation """
         resp = self.app.get('/recommendations/2')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-        self.assertEqual(data['recommendation'], {'name': 'Product 2', 'category': 'belts'})
+        self.assertEqual(data['recommendation'], {'name': 'Product 2', 'category': 'belts', 'dislikes': '1', 'rating': '4'})
 
     def test_get_recommendation_not_found(self):
         """ Get a Recommendation thats not found """
@@ -109,6 +117,39 @@ class TestRecommendationServer(unittest.TestCase):
         new_recommendation = {'id': 98, 'recommendation': {'name': 'Product 5', 'category': 'glassware'}}
         data = json.dumps(new_recommendation)
         resp = self.app.put('/recommendations/0', data=data, content_type='application/json')
+        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_dislike_recommendation(self):
+        """ Dislike a Recommendation """
+        new_recommendation = {}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/2/dislike', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        resp = self.app.get('/recommendations/2', content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_json = json.loads(resp.data)
+        self.assertEqual(new_json['recommendation']['dislikes'], 2)
+
+    def test_dislike_recommendation_with_deletion(self):
+        """ Delete a Recommendation that is disliked """
+         # save the current number of recommendations for later comparrison
+        recommendation_count = self.get_recommendation_count()
+
+        new_recommendation = {}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/3/dislike', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        resp = self.app.get('/recommendations/3', content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(len(resp.data) > 0)
+        new_count = self.get_recommendation_count()
+        self.assertEqual(new_count, recommendation_count - 1)
+
+    def test_dislike_recommendation_not_found(self):
+        """ Dislike a Recommendation that can't be found"""
+        new_recommendation = {}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/0/dislike', data=data, content_type='application/json')
         self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_recommendation(self):
