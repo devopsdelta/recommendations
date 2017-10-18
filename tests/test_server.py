@@ -69,6 +69,12 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.get('/recommendations/0')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_rating_recommendation(self):
+        """ Rating of Recommendation """
+        resp = self.app.get('/recommendations/rating')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data, '2.5')
+
     def test_create_recommendation(self):
         """ Create a Recommendation """
         # save the current number of recommendations for later comparrison

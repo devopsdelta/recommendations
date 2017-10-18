@@ -174,12 +174,46 @@ def delete_recommendations(recommendation_id):
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+<<<<<<< HEAD
 # ACTION 1 ON RECOMMENDATION
+=======
+<<<<<<< HEAD
+# ACTION 2 ON RECOMMENDATION
+######################################################################
+@app.route('/recommendations/rating', methods=['GET'])
+def rating_recommendation():
+    """
+    Rate the Recommendation app
+
+    This endpoint will return the overall rating of Recommendation app
+    """
+    recommendations = []
+
+    recommendations = Recommendation.all()
+    overall_rating = 0
+    count = 0
+
+    for recommendation in recommendations:
+        rating = recommendation.recommendation['rating']
+        overall_rating = int(overall_rating) + int(rating)
+        count += 1
+
+    rate = float(overall_rating) / float(count)
+
+    return make_response(str(rate), status.HTTP_200_OK)
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+=======
+# ACTION 1 ON RECOMMENDATION
+>>>>>>> master
+>>>>>>> RateAction
 ######################################################################
 @app.route('/recommendations/<int:recommendation_id>/dislike', methods=['PUT'])
 def dislike_recommendation(recommendation_id):
     """
     Dislike a Recommendation
+<<<<<<< HEAD
 
     This endpoint will delete a Recommendation if 5 or more users hit "dislike" URL
     for that particular recommendation
@@ -189,6 +223,17 @@ def dislike_recommendation(recommendation_id):
     if not recommendation:
         raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
 
+=======
+
+    This endpoint will delete a Recommendation if 5 or more users hit "dislike" URL
+    for that particular recommendation
+    """
+    recommendation = Recommendation.find_by_id(recommendation_id)
+
+    if not recommendation:
+        raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
+
+>>>>>>> RateAction
     current_value = recommendation.recommendation['dislikes']
     modified_value = int(current_value) + 1
     threshold = 5
