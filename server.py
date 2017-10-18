@@ -174,7 +174,6 @@ def delete_recommendations(recommendation_id):
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
-<<<<<<< HEAD
 # ACTION 2 ON RECOMMENDATION
 ######################################################################
 @app.route('/recommendations/rating', methods=['GET'])
@@ -200,10 +199,7 @@ def rating_recommendation():
     return make_response(str(rate), status.HTTP_200_OK)
 
 ######################################################################
-#  U T I L I T Y   F U N C T I O N S
-=======
 # ACTION 1 ON RECOMMENDATION
->>>>>>> master
 ######################################################################
 @app.route('/recommendations/<int:recommendation_id>/dislike', methods=['PUT'])
 def dislike_recommendation(recommendation_id):
@@ -228,7 +224,7 @@ def dislike_recommendation(recommendation_id):
         recommendation.id = recommendation_id
         recommendation.recommendation['dislikes'] = modified_value
         recommendation.save()
-        
+
     return make_response('Thank you for your feedback! We are working on it.', status.HTTP_200_OK)
 
 ######################################################################
