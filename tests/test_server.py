@@ -139,6 +139,8 @@ class TestRecommendationServer(unittest.TestCase):
         data = json.dumps(new_recommendation)
         resp = self.app.put('/recommendations/3/dislike', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # Since dislikes count reached the threshold (5), recommendation with id 3 is deleted
+        # Hence get(/recommendations/3) must return 404 NOT FOUND
         resp = self.app.get('/recommendations/3', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
         self.assertTrue(len(resp.data) > 0)
