@@ -51,9 +51,9 @@ class TestRecommendationServer(unittest.TestCase):
         data = json.loads(resp.data)
         self.assertEqual(len(data), 4)
 
-    def test_rate_recommendation(self):
+    def test_rating_recommendation(self):
         """ Rating of Recommendation """
-        resp = self.app.get('/recommendations/rate')
+        resp = self.app.get('/recommendations/rating')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data, '2.5')
 

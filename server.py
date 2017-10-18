@@ -191,8 +191,9 @@ def dislike_recommendation(recommendation_id):
 
     current_value = recommendation.recommendation['dislikes']
     modified_value = int(current_value) + 1
+    threshold = 5
 
-    if(modified_value >= 5):
+    if(modified_value >= threshold):
         recommendation.delete()
     else:
         recommendation.id = recommendation_id
@@ -204,8 +205,8 @@ def dislike_recommendation(recommendation_id):
 ######################################################################
 # ACTION 2 ON RECOMMENDATION
 ######################################################################
-@app.route('/recommendations/rate', methods=['GET'])
-def rate_recommendation():
+@app.route('/recommendations/rating', methods=['GET'])
+def rating_recommendation():
     """
     Rate the Recommendation app
 
@@ -229,7 +230,6 @@ def rate_recommendation():
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-
 def initialize_logging(log_level):
     """ Initialized the default logging to STDOUT """
     if not app.debug:

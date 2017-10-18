@@ -79,7 +79,6 @@ class Recommendation(object):
     @staticmethod
     def all():
         """ Returns all of the Products in the database """
-        print Recommendation.data
         return [recommendation for recommendation in Recommendation.data]
 
     @staticmethod
