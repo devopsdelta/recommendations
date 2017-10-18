@@ -174,6 +174,31 @@ def delete_recommendations(recommendation_id):
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+# ACTION 2 ON RECOMMENDATION
+######################################################################
+@app.route('/recommendations/rating', methods=['GET'])
+def rating_recommendation():
+    """
+    Rate the Recommendation app
+
+    This endpoint will return the overall rating of Recommendation app
+    """
+    recommendations = []
+
+    recommendations = Recommendation.all()
+    overall_rating = 0
+    count = 0
+
+    for recommendation in recommendations:
+        rating = recommendation.recommendation['rating']
+        overall_rating = int(overall_rating) + int(rating)
+        count += 1
+
+    rate = float(overall_rating) / float(count)
+
+    return make_response(str(rate), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
