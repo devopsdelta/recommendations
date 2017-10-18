@@ -174,9 +174,37 @@ def delete_recommendations(recommendation_id):
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+# ACTION 1 ON RECOMMENDATION
+######################################################################
+@app.route('/recommendations/<int:recommendation_id>/dislike', methods=['PUT'])
+def dislike_recommendation(recommendation_id):
+    """
+    Dislike a Recommendation
+
+    This endpoint will delete a Recommendation if 5 or more users hit "dislike" URL
+    for that particular recommendation
+    """
+    recommendation = Recommendation.find_by_id(recommendation_id)
+
+    if not recommendation:
+        raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
+
+    current_value = recommendation.recommendation['dislikes']
+    modified_value = int(current_value) + 1
+    threshold = 5
+
+    if(modified_value >= threshold):
+        recommendation.delete()
+    else:
+        recommendation.id = recommendation_id
+        recommendation.recommendation['dislikes'] = modified_value
+        recommendation.save()
+        
+    return make_response('Thank you for your feedback! We are working on it.', status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-
 def initialize_logging(log_level):
     """ Initialized the default logging to STDOUT """
     if not app.debug:
