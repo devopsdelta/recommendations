@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
   # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8081, host: 8081, host_ip: "127.0.0.1"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -79,7 +79,7 @@ Vagrant.configure("2") do |config|
   SHELL
 
   ######################################################################
-  # Add PostgreSQL docker container
+  # Add PostgreSQL docker container for Service
   ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
     # Prepare PostgreSQL data share
@@ -88,9 +88,26 @@ Vagrant.configure("2") do |config|
   SHELL
   # Add PostgreSQL docker container
   config.vm.provision "docker" do |d|
-    d.pull_images "postgres"
+    d.build_image "/vagrant",
+      args: "-t postgres"
     d.run "postgres",
       args: "-d --name postgres -p 5432:5432 -v /var/lib/postgresql/data:/var/lib/postgresql/data"
+  end
+
+  ######################################################################
+  # Add PostgreSQL docker container for Testing
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    # Prepare PostgreSQL data share
+    sudo mkdir -p /var/lib/postgresql/data_test
+    sudo chown ubuntu:ubuntu /var/lib/postgresql/data_test
+  SHELL
+  # Add PostgreSQL docker container
+  config.vm.provision "docker" do |d|
+    d.build_image "/vagrant",
+      args: "-t postgres_test"
+    d.run "postgres_test",
+      args: "-d --name postgres_test -p 5433:5432 -v /var/lib/postgresql/data_test:/var/lib/postgresql/data"
   end
 
   # Enable provisioning with a shell script. Additional provisioners such as
