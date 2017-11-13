@@ -12,8 +12,8 @@ class Product:
 		self.parseMetaData(item_meta_data)
 
 
-	#assumes that we recieve JSON Data in this Manner
-	#'[{'id':'1'},{'name':'socks'},{'category':'footwear'}]'
+	#assumes that we recieve JSON Data in this Manner	
+	#'{“id”:“2",“name”:“shoes”,“category”:“footwear”,“price”:“8.50"}'
 	def parseMetaData(self,item_meta_data):
 		try:
 			if (item_meta_data!= ""):
