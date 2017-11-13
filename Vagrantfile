@@ -81,20 +81,16 @@ Vagrant.configure("2") do |config|
     apt-get install -y git python-pip python-dev build-essential
     pip install --upgrade pip
     apt-get -y autoremove
+
     # Make vi look nice ;-)
     sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
+
     # Install app dependencies
-    sudo pip install -r requirements.txt
-    cd ..
-    wget http://public.dhe.ibm.com/cloud/bluemix/cli/bluemix-cli/Bluemix_CLI_0.6.0_amd64.tar.gz
-    tar -xvf Bluemix_CLI_0.6.0_amd64.tar.gz
-    cd Bluemix_CLI/
-    sudo ./install_bluemix_cli
-    cd ..
-    rm -fr Bluemix_CLI/
-    rm Bluemix_CLI_0.6.0_amd64.tar.gz 
-    cd
     cd /vagrant
+    sudo pip install -r requirements.txt
+
+    curl -fsSL https://clis.ng.bluemix.net/install/linux | sh
+    cd    
   SHELL
 
   ######################################################################
