@@ -6,7 +6,20 @@
 
 import unittest
 import json
+from mock import patch
+import os
 from models import Recommendation, DataValidationError
+import psycopg2
+
+VCAP_SERVICES = {
+    'elephantsql': [
+        {'credentials': {
+            'uri': 'postgres://postgres:@localhost:5432/postgres',
+            'max_conns': '5'
+            }
+        }
+    ]
+}
 
 ######################################################################
 #  T E S T   C A S E S
@@ -128,6 +141,31 @@ class TestRecommendations(unittest.TestCase):
         self.assertNotEqual(len(recommendations), 0)
         self.assertTrue('Product 1' in data['name'])
         self.assertTrue('software' in data['category'])
+
+    def test_passing_connection(self):
+        """ Pass in the ElephantSQL connection """
+        Recommendation.init_db(psycopg2.connect(database='postgres', user='postgres', password='', host='127.0.0.1', port=5432))
+        self.assertIsNotNone(Recommendation.conn)
+
+    def test_passing_bad_connection(self):
+        """ Pass in a bad ElephantSQL connection """
+        self.assertRaises(psycopg2.OperationalError, Recommendation.init_db, "Bad Connection")
+        self.assertIsNone(Recommendation.conn)
+
+    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
+    def test_vcap_services(self):
+        """ Test if VCAP_SERVICES works """
+        Recommendation.init_db()
+        self.assertIsNotNone(Recommendation.conn)
+
+    # @patch('conn.execute')
+    # def test_elephantsql_connection_error(self, poll_error_mock):
+    #     """ Test a Bad ElephantSQL connection """
+    #     poll_error_mock.side_effect = psycopg2.OperationalError
+    #     conn = psycopg2.connect(database='uinoaufa', user='uinoaufa', password='HtLlALPogtt2fGsvfqTujNNm6a-IT77b', host='hanno.db.elephantsql.com', port=5432)
+    #     self.assertRaises(psycopg2.OperationalError, Recommendation.init_db, conn)
+    #     self.assertIsNone(Recommendation.conn)
+
 
 ######################################################################
 #   M A I N
