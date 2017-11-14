@@ -29,7 +29,6 @@ class Recommendation(object):
 
     This version uses an in-memory collection of recommendations for testing
     """
-    logger = logging.getLogger(__name__)
     lock = threading.Lock()
     data = []
 
@@ -129,13 +128,13 @@ class Recommendation(object):
     @staticmethod
     def connect_to_elephantsql(database, user, password, host, port):
         """ Connects to ElephantSQL and tests the connection """
-        Recommendation.logger.info("Testing Connection to: %s:%s", host, port)
+        logging.info("Testing Connection to: %s:%s", host, port)
         try:
             conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
-            Recommendation.logger.info("Connection established")
+            logging.info("Connection established")
             Recommendation.conn = conn
         except:
-            Recommendation.logger.info("Connection Error from: %s:%s", host, port)
+            logging.info("Connection Error from: %s:%s", host, port)
             Recommendation.conn = None
         return Recommendation.conn
 
@@ -147,41 +146,41 @@ class Recommendation(object):
         This method will work in the following conditions:
           1) In Bluemix with ElephantSQL bound through VCAP_SERVICES
           2) With ElephantSQL running on the local server as with Travis CI
-          3) With ElephantSQL --link in a Docker container called 'psycopg2'
+          3) With PostgresSQL --link in a Docker container called 'postgres'
           4) Passing in your own ElephantSQL connection object
 
         Exception:
         ----------
-          psycopg2.ConnectionError - if connect() fails
+          psycopg2.OperationalError - if connect() fails
         """
         if conn:
-            Recommendation.logger.info("Using client connection...")
+            logging.info("Using client connection...")
             Recommendation.conn = conn
             try:
                 #status = Recommendation.conn.poll()
                 cur = conn.cursor()
                 cur.execute('SELECT 1')
             except:
-                Recommendation.logger.error("Client Connection Error!")
+                logging.error("Client Connection Error!")
                 Recommendation.conn = None
                 raise psycopg2.OperationalError("Could not connect to the ElephantSQL Service")
             return
         # Get the credentials from the Bluemix environment
         if 'VCAP_SERVICES' in os.environ:
-            Recommendation.logger.info("Using VCAP_SERVICES...")
+            logging.info("Using VCAP_SERVICES...")
             vcap_services = os.environ['VCAP_SERVICES']
             services = json.loads(vcap_services)
             creds = services['elephantsql'][0]['credentials']
             uri = creds['uri']
             urlparse.uses_netloc.append("postgres")
             url = urlparse.urlparse(uri)
-            Recommendation.logger.info("Conecting to ElephantSQL on host %s port %s",url.hostname, url.port)
+            logging.info("Conecting to ElephantSQL on host %s port %s",url.hostname, url.port)
             Recommendation.connect_to_elephantsql(url.path[1:], url.username, url.password, url.hostname, url.port)
         else:
-            Recommendation.logger.info("VCAP_SERVICES not found, checking localhost for ElephantSQL")
+            logging.info("VCAP_SERVICES not found, checking localhost for ElephantSQL")
             Recommendation.connect_to_elephantsql('postgres', '', '', '127.0.0.1', 5432)
             if not Recommendation.conn:
-                Recommendation.logger.info("No ElephantSQL on localhost")
+                logging.info("No ElephantSQL on localhost")
         if not Recommendation.conn:
-            # if you end up here, psycopg2 instance is down.
-            Recommendation.logger.fatal('*** FATAL ERROR: Could not connect to the ElephantSQL Service')
+            # if you end up here, postgres instance is down.
+            logging.fatal('*** FATAL ERROR: Could not connect to the ElephantSQL Service')
