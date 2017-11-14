@@ -175,13 +175,8 @@ class Recommendation(object):
             uri = creds['uri']
             urlparse.uses_netloc.append("postgres")
             url = urlparse.urlparse(uri)
-            database=url.path[1:]
-            user=url.username
-            password=url.password
-            host=url.hostname
-            port=url.port
-            Recommendation.logger.info("Conecting to ElephantSQL on host %s port %s",host, port)
-            Recommendation.connect_to_elephantsql(database, user, password, host, port)
+            Recommendation.logger.info("Conecting to ElephantSQL on host %s port %s",url.hostname, url.port)
+            Recommendation.connect_to_elephantsql(url.path[1:], url.username, url.password, url.hostname, url.port)
         else:
             Recommendation.logger.info("VCAP_SERVICES not found, checking localhost for ElephantSQL")
             Recommendation.connect_to_elephantsql('postgres', '', '', '127.0.0.1', 5432)
