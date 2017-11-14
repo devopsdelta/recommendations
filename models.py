@@ -184,7 +184,7 @@ class Recommendation(object):
             Recommendation.connect_to_elephantsql(database, user, password, host, port)
         else:
             Recommendation.logger.info("VCAP_SERVICES not found, checking localhost for ElephantSQL")
-            Recommendation.connect_to_elephantsql('database', '', '', '127.0.0.1', 5432)
+            Recommendation.connect_to_elephantsql('postgres', '', '', '127.0.0.1', 5432)
             if not Recommendation.conn:
                 Recommendation.logger.info("No ElephantSQL on localhost")
         if not Recommendation.conn:
