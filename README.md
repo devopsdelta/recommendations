@@ -1,7 +1,7 @@
 # Recommendations Service
 
 [![Build Status](https://travis-ci.org/devopsdelta/recommendations.svg?branch=master)](https://travis-ci.org/devopsdelta/recommendations)
-[![Codecov](https://img.shields.io/codecov/c/github/devopsdelta/recommendations.svg)]()
+[![Codecov](https://img.shields.io/codecov/c/github/devopsdelta/recommendations.svg)](https://codecov.io/gh/devopsdelta)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
