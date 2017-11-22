@@ -11,4 +11,3 @@ applications:
   buildpack: python_buildpack
   services:
   - elephantsql-nyu-delta-team-f17
- # - availability-monitoring-auto
