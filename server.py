@@ -19,8 +19,8 @@ from werkzeug.exceptions import NotFound
 from models import Recommendation, RecommendationType, RecommendationDetail, init_db, DataValidationError
 # Create Flask application
 app = Flask(__name__)
+app.config.from_object('config')
 
-# Pull options from environment
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '8081')
 
@@ -134,29 +134,36 @@ def create_recommendations():
     """
     Creates a Recommendation
 
-    This endpoint will create a Recommendations based the data in the body that is posted
+    This endpoint will create a Recommendations based the data in the body that is posted.
+    We assume when a user ask for a recommendation they will provide a Product Id
+    And a Type in the following format:
+        { 'product_id': <int>, 'type': '<[up-sell|accessory|cross-sell]' }
     """
 
     data = request.get_json()
     rec = Recommendation()
     rec.deserialize(data)
 
-    #TODO: Check that the product and type combination doesn't already exist
     recs = Recommendation.find_by_product_id_and_type(rec.product_id, rec.rec_type)
 
-    # TODO: How should we handle an existing recommendation when a previous
-    #       Product and type combo is found?
-    #       1. Should we return the existing recommendation?
-    #       2. Should we delete the previous recommendation and rerun the engine?
+    # TODO: Based on our session, we decided that in the event a previous recommendation
+    #       Is found we should we delete the previous recommendation and rerun the engine
 
     if not recs:
-        # Create a new recommendation if
-        #rec = Recommendation(prod_id=product_id, rec_type=rec_type_obj)
-
         # TODO: Determine what products will be recommended based on product id and
         #       Recommendation type
 
-        # TODO: Remove once weight function has been completed
+        # TODO: Place a GET call to the Product API to get the product details for the
+        #       Product we need to make a recommendation for
+
+        # TODO: Make a GET call to the Product API query method to get products
+        #       That will be used to make our recommendations. Loop through each
+        #       Products that is returned and run it through our engine.
+
+        # TODO: Place our 'Canned' recommendations here. In other words, if for
+        #       Any reason our engine is unable to make recommendations
+        #       (i.e. the Product service is down) return a standard set of
+        #       Products (for isinstance, most popular)
         rec_detail1 = RecommendationDetail(10, .6)
         rec_detail2 = RecommendationDetail(20, .7)
         rec_detail3 = RecommendationDetail(30, .67)
@@ -188,8 +195,6 @@ def update_recommendations(recommendation_id):
     if not recommendation:
         raise NotFound("Recommendation with id '{}' was not found.".format(recommendation_id))
 
-    # TODO: If the update is the type, check that no other product, type combo
-    #       Exists already before updating
 
     recommendation.deserialize(request.get_json())
     recommendation.id = recommendation_id
@@ -304,8 +309,8 @@ def initialize_logging(log_level):
         app.logger.setLevel(log_level)
         app.logger.info('Logging handler established')
 
-def initialize_db(self, db_url=None):
-    init_db(app, db_url)
+def initialize_db():
+    init_db(app)
 
 ######################################################################
 #   M A I N
@@ -313,6 +318,5 @@ def initialize_db(self, db_url=None):
 if __name__ == "__main__":
     print "Recommendation Service Starting..."
     initialize_logging(logging.INFO)
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    initialize_db(None)
+    initialize_db()
     app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG, use_reloader=False)

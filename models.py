@@ -45,10 +45,11 @@ import logging
 from datetime import datetime
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Boolean, DateTime
-from sqlalchemy import Index
+from sqlalchemy import Index, UniqueConstraint
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from flask_sqlalchemy import Model, SQLAlchemy
 from psycopg2 import OperationalError
+from connection import get_database_uri
 
 LOCAL_HOST_URI = u'postgres://recommendations:password@localhost:5432/recommendations'
 
@@ -100,13 +101,17 @@ class DataValidationError(Exception):
 
 class RecommendationType(db.Model):
     """ Lookup table to store the Recommendation Types """
-
+    # PK | Name      | Is Active | Product Query
+    # --------------------------------------------------------
+    # 1  | "up-sell" | 1         | "?category=shoes&price>0"
+    #
     __tablename__ = 'recommendation_type'
     id = Column(Integer, primary_key=True)
     name = Column(String(40), unique=True, nullable=False)
     is_active = Column(Boolean, nullable=False)
     # TODO: Store the query that will be used to call the Product service
     # product_query = Column(String(255), nullable=False) Category="originalproductCategory", Price > current Product Price + 1
+
 
     def __init__(self, Name=None, active=True):
         self.name = Name
@@ -126,11 +131,18 @@ class RecommendationType(db.Model):
         """ Find a Recommendation Type By Name """
         return cls.query.filter_by(name=str(rec_name.lower())).first()
 
+# PK | PRODUCT_ID   | TYPE
+# 1  | 2 (Converse) | 1 (up-sell)
+# 2  | 2 (Converse) | 2 (accessory)
+
 """ Recommendation per category """
 class Recommendation(db.Model):
-    """
-    Class that represents a Recommendation
-    """
+    """ Class that represents a Recommendation """
+    # PK | Product Id | Type Id | Dislike Count
+    # --------------------------------------------------------
+    # 1  | 23         | 1       | "?category=shoes&price>0"
+    #
+
     __tablename__ = 'recommendation'
     id = Column(Integer, primary_key = True)
     product_id = Column(Integer, unique=False)
@@ -139,6 +151,8 @@ class Recommendation(db.Model):
 
     rec_type = relationship('RecommendationType')
     recommendations = relationship('RecommendationDetail', backref="recommendation")
+
+    UniqueConstraint('product_id', 'rec_type_id', name='uix_product_id_type_id')
 
     def __init__(self, prod_id=-1, rec_type=None):
         self.product_id = prod_id
@@ -207,12 +221,24 @@ class Recommendation(db.Model):
 
 class RecommendationDetail(db.Model):
     """ Represents the details of a recommendation """
+
     __tablename__ = 'recommendation_detail'
     id = Column(Integer, primary_key = True)
     rec_id = Column(Integer, ForeignKey('recommendation.id'), nullable=False)
     rec_product_id = Column(Integer, nullable=False)
     weight = Column(Float, nullable=False)
     dislike_count = Column(Integer, nullable=False, default=0)
+
+    UniqueConstraint('rec_id', 'rec_product_id', name='uix_rec_id_rec_product_id')
+
+    # PK | Recommendation Id | Recommendation Prod Id | Weight | Dislike Count
+    # --------------------------------------------------------------------------
+    # 1  | 1                 | 32                     | .6     | 0
+    # 2  | 1                 | 34                     | .6     | 3
+    # 3  | 1                 | 45                     | .6     | 0
+    # 4  | 2                 | 23                     | .6     | 0
+    # 5  | 2                 | 33                     | .6     | 1
+    # 6  | 2                 | 43                     | .6     | 0
 
     def __init__(self, recommended_prod_id, fweight):
         self.rec_product_id = recommended_prod_id
@@ -223,7 +249,7 @@ class RecommendationDetail(db.Model):
             (self.id, self.rec_id, self.rec_product_id, self.weight, self.dislike_count)
 
     def serialize(self):
-        """ Serializes a Recommendation into a dictionary """
+        """ Serializes a Recommendation Detail into a dictionary """
         return { 'id': self.id,
                 'rec_id': self.rec_id,
                 'rec_product_id': self.rec_product_id,
@@ -253,41 +279,16 @@ class RecommendationDetail(db.Model):
 #  E L E P H A N T S Q L   D A T A B A S E   C O N N E C T I O N   M E T H O D S
 #################################################################################
 
-def init_db(app, conn=None):
+def init_db(app):
     """
-    Initialized ElephantSQL database connection
-
-    This method will work in the following conditions:
-      1) In Bluemix with ElephantSQL bound through VCAP_SERVICES
-      2) With ElephantSQL running on the local server as with Travis CI
-      3) With PostgresSQL --link in a Docker container called 'postgres'
-      4) Passing in your own ElephantSQL connection object
+    Initialized database connection
 
     Exception:
     ----------
       OperationalError - if connect() fails
     """
 
-    if conn:
-        logging.info("Using client connection...")
-        app.config['SQLALCHEMY_DATABASE_URI'] = conn
-    elif 'VCAP_SERVICES' in os.environ:
-        # Get the credentials from the Bluemix environment
-        logging.info("Using VCAP_SERVICES...")
-        vcap_services = os.environ['VCAP_SERVICES']
-        services = json.loads(vcap_services)
-        creds = services['elephantsql'][0]['credentials']
-        uri = creds['uri']
-        urlparse.uses_netloc.append("postgres")
-        url = urlparse.urlparse(uri)
-        logging.info("Conecting to ElephantSQL on host %s port %s", url.hostname, url.port)
-        app.config['SQLALCHEMY_DATABASE_URI'] = uri
-    else:
-        logging.info("VCAP_SERVICES not found, checking localhost for ElephantSQL")
-        app.config['SQLALCHEMY_DATABASE_URI'] = LOCAL_HOST_URI
-
     try:
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         db.init_app(app)
         app.app_context().push()
         db.create_all()

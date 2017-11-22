@@ -17,7 +17,6 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
-  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 8081, host: 8081, host_ip: "127.0.0.1"
 
   # Create a private network, which allows host-only access to the machine
@@ -86,6 +85,7 @@ Vagrant.configure("2") do |config|
     sudo mkdir -p /var/lib/postgresql/data
     sudo chown ubuntu:ubuntu /var/lib/postgresql/data
   SHELL
+
   # Add PostgreSQL docker container
   config.vm.provision "docker" do |d|
     d.build_image "/vagrant",
@@ -94,27 +94,4 @@ Vagrant.configure("2") do |config|
       args: "-d --name postgres -p 5432:5432 -v /var/lib/postgresql/data:/var/lib/postgresql/data"
   end
 
-  ######################################################################
-  # Add PostgreSQL docker container for Testing
-  ######################################################################
-  config.vm.provision "shell", inline: <<-SHELL
-    # Prepare PostgreSQL data share
-    sudo mkdir -p /var/lib/postgresql/data_test
-    sudo chown ubuntu:ubuntu /var/lib/postgresql/data_test
-  SHELL
-  # Add PostgreSQL docker container
-  config.vm.provision "docker" do |d|
-    d.build_image "/vagrant",
-      args: "-t postgres_test"
-    d.run "postgres_test",
-      args: "-d --name postgres_test -p 5433:5432 -v /var/lib/postgresql/data_test:/var/lib/postgresql/data"
-  end
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get install -y apache2
-  SHELL
 end

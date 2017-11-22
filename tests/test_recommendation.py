@@ -3,23 +3,23 @@
 # coverage report -m
 
 """ Test cases for Recommendation Model """
-
+import os
 import unittest
 import json
 from psycopg2 import OperationalError
 from mock import patch
-import os
 from models import Recommendation, RecommendationType, RecommendationDetail
 from models import init_db, db, DataValidationError
 from flask import Flask, jsonify
+import connection
 
-LOCAL_HOST_URI = 'postgres://recommendations:password@localhost:5433/recommendations'
-BAD_DATABASE_CREDS = 'postgres://recommendations:password@localhost:5400/recommendations'
+#LOCAL_HOST_URI = connection.get_database_uri() #'postgres://recommendations:password@localhost:5433/recommendations'
+os.environ['TEST'] = 'True'
 
 VCAP_SERVICES = {
     'elephantsql': [
         {'credentials': {
-            'uri': LOCAL_HOST_URI,
+            'uri': connection.get_database_uri(),
             'max_conns': '5'
             }
         }
@@ -35,8 +35,8 @@ class TestRecommendations(unittest.TestCase):
     def setUp(self):
         """ Creates a new database for the unit test to use """
         self.app = Flask(__name__)
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        init_db(self.app, LOCAL_HOST_URI)
+        self.app.config.from_object('config')
+        init_db(self.app)
 
     def tearDown(self):
         """ Ensures that the database is emptied for next unit test """
@@ -200,7 +200,7 @@ class TestRecommendations(unittest.TestCase):
         # Assuming the client will provide a product id and category as a String
         rec_type = RecommendationType.find_by_id(1)
         rec = Recommendation.find_by_type(rec_type)[0]
-        print rec.serialize()
+
         self.assertIsNot(rec, None)
         self.assertEqual(len(rec.recommendations), 4)
         self.assertEqual(rec.product_id, 23)
@@ -238,25 +238,33 @@ class TestRecommendations(unittest.TestCase):
 
     def test_good_database_connection(self):
         """ Pass in a good db connection """
-        self.test_app = Flask(__name__)
-        init_db(self.test_app, LOCAL_HOST_URI)
+        test_app = Flask(__name__)
+        test_app.config.from_object('config')
+        init_db(test_app)
         self.assertIsNotNone(db)
 
     def test_incorrect_database_connection(self):
         """ Pass in the connection with incorrect info """
-        self.test_app = Flask(__name__)
-        self.assertRaises(OperationalError, init_db, self.test_app, BAD_DATABASE_CREDS)
+        test_app = Flask(__name__)
+        test_app.config["SQLALCHEMY_DATABASE_URI"] = 'postgres://recommendations:password@localhost:9999/recommendations'
+        test_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        self.assertRaises(OperationalError, init_db, test_app)
 
-    def test_passing_bad_connection(self):
+    @patch('connection.get_database_uri')
+    def test_passing_bad_connection_string(self, bad_database_creds):
         """ Pass in a bad connection string """
-        self.test_app = Flask(__name__)
-        self.assertRaises(OperationalError, init_db, self.test_app, "Bad Connection")
+        test_app = Flask(__name__)
+        test_app.config["SQLALCHEMY_DATABASE_URI"] = "Bad Connection String"
+        test_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        self.assertRaises(OperationalError, init_db, test_app)
 
     @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
     def test_vcap_services(self):
         """ Test if VCAP_SERVICES works """
-        self.test_app = Flask(__name__)
-        init_db(self.test_app)
+        test_app = Flask(__name__)
+        test_app.config.from_object('config')
+
+        init_db(test_app)
         self.assertIsNotNone(db)
 
     @patch('models.db.session.commit')

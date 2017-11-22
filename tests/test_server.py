@@ -3,7 +3,7 @@
 # coverage report -m
 
 """ Test cases for the Recommendation Service """
-
+import os
 import logging
 import unittest
 import json
@@ -13,8 +13,9 @@ import server
 import mock
 from models import db, init_db
 from models import Recommendation, RecommendationType, RecommendationDetail
+from connection import get_database_uri
 
-LOCAL_HOST_URI = 'postgres://recommendations:password@localhost:5433/recommendations'
+os.environ['TEST'] = 'True'
 
 ######################################################################
 #  T E S T   C A S E S
@@ -30,7 +31,7 @@ class TestRecommendationServer(unittest.TestCase):
 
     def setUp(self):
         """ Runs before each test """
-        server.initialize_db(LOCAL_HOST_URI)
+        server.initialize_db()
 
         rec_type = RecommendationType.find_by_id(1)
         rec = Recommendation(10, rec_type)
