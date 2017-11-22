@@ -137,7 +137,7 @@ def create_recommendations():
     This endpoint will create a Recommendations based the data in the body that is posted.
     We assume when a user ask for a recommendation they will provide a Product Id
     And a Type in the following format:
-        { 'product_id': <int>, 'type': '<[up-sell|accessory|cross-sell]' }
+        { 'product_id': <int>, 'type': '<[up-sell|accessory|cross-sell]>' }
     """
 
     data = request.get_json()
