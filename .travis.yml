@@ -22,7 +22,6 @@ env:
 
 services:
   - postgresql
-  - availability-monitoring-auto
   - continuous-delivery-nyu-delta-team-f17
   - elephantsql-nyu-delta-team-f17
 
