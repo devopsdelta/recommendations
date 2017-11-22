@@ -36,18 +36,22 @@ class EngineTestCase(unittest.TestCase):
         #valid product_2_metadata
         self.assertEquals(p2,{"id":"2","name":"shoes","category":"footwear","price":"8.50"})
 
+    def test_badRecType(self):
+        """Testing Bad Recommendation Types"""
+        self.assertEquals(self.rec_engine_2.getWeight(self.other_prod_1),"Invalid rec_type_id")
+
+    def test_badMetadata(self):
+        """Testing Bad Metadata"""
+        self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_5),"Invalid metadata! Confirm you entered an id, category, and price. Also, confirm that price is a numeric value!")
+
     def test_getWeight(self):
         """Testing Correct Weights"""
-
-        #invalid rectype
-        self.assertEquals(self.rec_engine_2.getWeight(self.other_prod_1),"Invalid rec_type_id")
 
         #upsell algo test          
         self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_1),2) 
         self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_2),1) 
         self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_3),1)
         self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_4),0)
-        self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_5),"Invalid metadata! Confirm you entered an id, category, and price. Also, confirm that price is a numeric value!")
 
    
 if __name__ == '__main__':
