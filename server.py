@@ -13,17 +13,16 @@ DELETE /recommendations/{id} - deletes a Recommendations record in the database
 import os
 import sys
 import logging
-from flask import Flask, jsonify, request, url_for, make_response
+from flask import Flask, jsonify, request, url_for, make_response, json
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
-from models import Recommendation, DataValidationError
-
+from models import Recommendation, RecommendationType, RecommendationDetail, init_db, DataValidationError
 # Create Flask application
 app = Flask(__name__)
+app.config.from_object('config')
 
-# Pull options from environment
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
-PORT = os.getenv('PORT', '8080')
+PORT = os.getenv('PORT', '8081')
 
 ######################################################################
 # Error Handlers
@@ -34,6 +33,13 @@ def request_validation_error(error):
     return bad_request(error)
 
 @app.errorhandler(400)
+def bad_request(error):
+    """ Handles bad reuests with 400_BAD_REQUEST """
+    message = error.message or str(error)
+    app.logger.info(message)
+    return jsonify(status=400, error='Bad Request', message=message), 400
+
+@app.errorhandler(ValueError)
 def bad_request(error):
     """ Handles bad reuests with 400_BAD_REQUEST """
     message = error.message or str(error)
@@ -78,20 +84,29 @@ def index():
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
     """ Returns all of the Recommendations """
-    category = request.args.get('category')
+    type_name = request.args.get('type')
+    product_id = request.args.get('product_id')
     recommendations = []
     results = []
+    rec_type = None
 
-    if category:
-        recommendations = Recommendation.find_by_category(category)
+    if type_name:
+        rec_type = RecommendationType.find_by_name(rec_name=type_name)
+
+        if not rec_type:
+            raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
+
+    if rec_type and product_id:
+        recs = Recommendation.find_by_product_id_and_type(product_id, rec_type)
+    elif rec_type:
+        recs = Recommendation.find_by_type(rec_type)
+    elif product_id:
+        recs = Recommendation.find_by_product_id(product_id)
     else:
-        recommendations = Recommendation.all()
+        recs = Recommendation.all()
 
-    if recommendations:
-        results = [recommendation.serialize() for recommendation in recommendations]
-        return make_response(jsonify(results), status.HTTP_200_OK)
-
-    raise NotFound("No Recommendations found.")
+    results = [rec.serialize() for rec in recs if rec is not None]
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A RECOMMENDATION
@@ -119,20 +134,51 @@ def create_recommendations():
     """
     Creates a Recommendation
 
-    This endpoint will create a Recommendations based the data in the body that is posted
+    This endpoint will create a Recommendations based the data in the body that is posted.
+    We assume when a user ask for a recommendation they will provide a Product Id
+    And a Type in the following format:
+        { 'product_id': <int>, 'type': '<[up-sell|accessory|cross-sell]>' }
     """
-    recommendation = Recommendation()
-    recommendation.deserialize(request.get_json())
-    recommendation.save()
 
-    message = recommendation.serialize()
-    location_url = url_for('get_recommendations', recommendation_id=recommendation.id, _external=True)
+    data = request.get_json()
+    rec = Recommendation()
+    rec.deserialize(data)
+
+    recs = Recommendation.find_by_product_id_and_type(rec.product_id, rec.rec_type)
+
+    # TODO: Based on our session, we decided that in the event a previous recommendation
+    #       Is found we should we delete the previous recommendation and rerun the engine
+
+    if not recs:
+        # TODO: Determine what products will be recommended based on product id and
+        #       Recommendation type
+
+        # TODO: Place a GET call to the Product API to get the product details for the
+        #       Product we need to make a recommendation for
+
+        # TODO: Make a GET call to the Product API query method to get products
+        #       That will be used to make our recommendations. Loop through each
+        #       Products that is returned and run it through our engine.
+
+        # TODO: Place our 'Canned' recommendations here. In other words, if for
+        #       Any reason our engine is unable to make recommendations
+        #       (i.e. the Product service is down) return a standard set of
+        #       Products (for isinstance, most popular)
+        rec_detail1 = RecommendationDetail(10, .6)
+        rec_detail2 = RecommendationDetail(20, .7)
+        rec_detail3 = RecommendationDetail(30, .67)
+        rec.recommendations.append(rec_detail1)
+        rec.recommendations.append(rec_detail2)
+        rec.recommendations.append(rec_detail3)
+        rec.save()
+
+    message = rec.serialize()
+    location_url = url_for('get_recommendations', recommendation_id=rec.id, _external=True)
 
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {
                              'Location': location_url
                          })
-
 
 ######################################################################
 # UPDATE AN EXISTING RECOMMENDATION
@@ -148,6 +194,7 @@ def update_recommendations(recommendation_id):
 
     if not recommendation:
         raise NotFound("Recommendation with id '{}' was not found.".format(recommendation_id))
+
 
     recommendation.deserialize(request.get_json())
     recommendation.id = recommendation_id
@@ -168,8 +215,10 @@ def delete_recommendations(recommendation_id):
     """
     recommendation = Recommendation.find_by_id(recommendation_id)
 
-    if recommendation:
-        recommendation.delete()
+    if not recommendation:
+        raise NotFound("Recommendation with id '{}' was not found.".format(recommendation_id))
+
+    recommendation.delete()
 
     return make_response('', status.HTTP_204_NO_CONTENT)
 
@@ -189,8 +238,8 @@ def rating_recommendation():
     overall_rating = 0
     count = 0
 
-    for recommendation in recommendations:
-        rating = recommendation.recommendation['rating']
+    for rec in recommendations:
+        rating = rec.dislike_count
         overall_rating = int(overall_rating) + int(rating)
         count += 1
 
@@ -201,31 +250,36 @@ def rating_recommendation():
 ######################################################################
 # ACTION 1 ON RECOMMENDATION
 ######################################################################
-@app.route('/recommendations/<int:recommendation_id>/dislike', methods=['PUT'])
-def dislike_recommendation(recommendation_id):
+@app.route('/recommendations/<int:rec_id>/<int:product_id>/dislike', methods=['PUT'])
+def dislike_recommendation(rec_id, product_id):
     """
     Dislike a Recommendation
 
     This endpoint will delete a Recommendation if 5 or more users hit "dislike" URL
     for that particular recommendation
     """
-    recommendation = Recommendation.find_by_id(recommendation_id)
+    rec_detail = RecommendationDetail.find_by_rec_id_and_product_id(rec_id, product_id)
 
-    if not recommendation:
+    if not rec_detail:
         raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
 
-    current_value = recommendation.recommendation['dislikes']
-    modified_value = int(current_value) + 1
+    # TODO: This could be a good candidate for a config variable/global variable
     threshold = 5
 
-    if(modified_value >= threshold):
-        recommendation.delete()
+    if(rec_detail.dislike_count + 1 >= threshold):
+        # TODO: No action should be taken after the threshold has been exceeded.
+        #       To ensure we don't recommend this product again we should Not
+        #       Choose this product again.
+        #       Possible solutions:
+        #       1. Modify the weight function to factor dislike count
+        #       2. Add an is_active or is_visible field to the database for this
+        #          Product and hide the results if the threshold has been reached.
+        rec_detail.delete()
     else:
-        recommendation.id = recommendation_id
-        recommendation.recommendation['dislikes'] = modified_value
-        recommendation.save()
+        rec_detail.dislike_count += 1
+        rec_detail.save()
 
-    return make_response('Thank you for your feedback! We are working on it.', status.HTTP_200_OK)
+    return make_response('Thank you for your feedback! We are working on it.\n', status.HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
@@ -255,6 +309,8 @@ def initialize_logging(log_level):
         app.logger.setLevel(log_level)
         app.logger.info('Logging handler established')
 
+def initialize_db():
+    init_db(app)
 
 ######################################################################
 #   M A I N
@@ -262,4 +318,5 @@ def initialize_logging(log_level):
 if __name__ == "__main__":
     print "Recommendation Service Starting..."
     initialize_logging(logging.INFO)
-    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
+    initialize_db()
+    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG, use_reloader=False)
