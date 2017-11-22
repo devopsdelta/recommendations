@@ -16,6 +16,9 @@ script:
 after_success:
   - codecov
 
+env:
+  - TEST='True'
+
 #services:
 #  - redis-server
 
