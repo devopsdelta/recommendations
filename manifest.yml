@@ -12,4 +12,3 @@ applications:
   services:
   - elephantsql-nyu-delta-team-f17
   - availability-monitoring-auto
-  - continuous-delivery-nyu-delta-team-f17	
