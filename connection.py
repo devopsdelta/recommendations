@@ -23,11 +23,9 @@ def get_database_uri():
         vcap_services = os.environ['VCAP_SERVICES']
         services = json.loads(vcap_services)
         creds = services['elephantsql'][0]['credentials']
-        username = creds["username"]
-        password = creds["password"]
-        hostname = creds["hostname"]
-        port = creds["port"]
-        name = creds["name"]
+        uri = creds["uri"]
+        max_conns = creds["max_conns"]
+        return uri
 
     else:
         logging.info("Using localhost database...")
