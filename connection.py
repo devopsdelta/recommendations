@@ -24,21 +24,16 @@ def get_database_uri():
         services = json.loads(vcap_services)
         creds = services['elephantsql'][0]['credentials']
         uri = creds["uri"]
-        max_conns = creds["max_conns"]
-        return uri
 
-    else:
+     else:
         logging.info("Using localhost database...")
-        username = 'postgres'
-        password = 'password'
-        hostname = 'localhost'
-        port = '5432'
-
+        name = 'postgres'
+        
         if 'TEST' in os.environ:
             name = 'test'
         else:
             name = 'development'
+        uri = 'postgres://postgres:password@localhost:5432/{}'
+        uri.format(name)
 
-    logging.info("Conecting to database on host %s port %s", hostname, port)
-    connect_string = 'postgres://{}:{}@{}:{}/{}'
-    return connect_string.format(username, password, hostname, port, name)
+    return uri
