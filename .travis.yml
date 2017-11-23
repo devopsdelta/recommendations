@@ -22,4 +22,7 @@ env:
 
 services:
   - postgresql
+  - continuous-delivery-nyu-delta-team-f17
+  - elephantsql-nyu-delta-team-f17
+
 
