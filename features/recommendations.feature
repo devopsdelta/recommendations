@@ -13,8 +13,6 @@ Background:
         | 5  | 2                 | 33                     | .6     | 1             |
         | 6  | 2                 | 43                     | .6     | 0             |
 
-
-Scenario: The server is running
     When I visit the "Home Page"
     Then I should see "Recommendation Demo REST API Service" in the title
     And I should not see "404 Not Found"
