@@ -5,7 +5,7 @@ Feature: The recommendations api service back-end
 
 Background:
     Given the following recommendations
-        | PK | Recommendation Id | Recommendation Prod Id | Weight | Dislike Count |
+        | PK | Recommendation ID | Recommendation Prod ID | Weight | Dislike Count |
         | 1  | 1                 | 32                     | .6     | 0             |
         | 2  | 1                 | 34                     | .6     | 3             |
         | 3  | 1                 | 45                     | .6     | 0             |

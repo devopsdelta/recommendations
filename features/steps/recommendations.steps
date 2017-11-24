@@ -12,24 +12,27 @@ from app import server
 
 BASE_URL = getenv('BASE_URL', 'http://localhost:5000/')
 
-@given(u'the following pets')
+@given(u'the following recommendations')
 def step_impl(context):
-    """ Delete all Pets and load new ones """
+    """ Load new Recommendations """
     headers = {'Content-Type': 'application/json'}
-    context.resp = requests.delete(context.base_url + '/pets/reset', headers=headers)
-    assert context.resp.status_code == 204
-    create_url = context.base_url + '/pets'
+    #we do not have a reset function
+    #context.resp = requests.delete(context.base_url + '/recommendations/reset', headers=headers)
+    #assert context.resp.status_code == 204
+    create_url = context.base_url + '/recommendations'
     for row in context.table:
-        data = {
-            "name": row['name'],
-            "category": row['category'],
-            "available": row['available'] in ['True', 'true', '1']
+        recommendations = {
+            "PK": row['PK'],
+            "Recommendation ID": row['Recommendation ID'],
+            "Recommendation Prod ID": row['Recommendation Prod ID',
+            "Weight": row['Weight',
+            "Dislike Count": row['Dislike Count']
             }
-        payload = json.dumps(data)
-        context.resp = requests.post(create_url, data=payload, headers=headers)
+        payload = json.dumps(recommendations)
+        context.resp = requests.post(create_url, recommendations=payload, headers=headers)
         assert context.resp.status_code == 201
 
-@when(u'I visit the "home page"')
+@when(u'I visit the "Home Page"')
 def step_impl(context):
     """ Make a call to the base URL """
     context.driver.get(context.base_url)
