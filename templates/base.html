@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {% block head %}
+    <title>{% block title %}{% endblock %} - RecommendationAPI</title>
+    {% endblock %}
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <link rel="stylesheet" href="{{url_for('.static', filename='css/bootstrap.min.css')}}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{url_for('.static', filename='css/font-awesome/css/font-awesome.min.css')}}">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="{{url_for('.static', filename='css/ionicons.min.css')}}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{url_for('.static', filename='css/AdminLTE.min.css')}}">
+    <!-- AdminLTE Skins -->
+    <link rel="stylesheet" href="{{url_for('.static', filename='css/skin-blue.min.css')}}">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Google Font -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <!-- Main Header -->
+  <header class="main-header">
+
+    <!-- Logo -->
+    <a href="index2.html" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini"><b>A</b>PI</span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg"><b>Recommendation</b>API</span>
+    </a>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top" role="navigation">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+    </nav>
+  </header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+
+      <!-- Sidebar Menu -->
+      <ul class="sidebar-menu" data-widget="tree">
+        <li class="header">Administration</li>
+        <!-- Optionally, you can add icons to the links -->
+        <li class="active"><a href="/recommendations"><i class="fa fa-link"></i> <span>Manage Recommendation</span></a></li>
+        <li><a href="/recommendations/metadata"><i class="fa fa-link"></i> <span>Manage Product Metadata</span></a></li>
+        <li><a href="/recommendations/docs"><i class="fa fa-link"></i> <span>Documenation</span></a></li>
+      </ul>
+      <!-- /.sidebar-menu -->
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+        Recommendation Managment
+        <small>Manage all things recommended</small>
+      </h1>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+
+      {% block content %}{% endblock %}
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <!-- To the right -->
+    <div class="pull-right hidden-xs">
+      &nbsp;
+    </div>
+    <!-- Default to the left -->
+
+    {% block footer %}
+    <strong>Copyright &copy; 2017 <a href="#">NYU - DevOps Delta</a>.</strong> All rights reserved.
+    {% endblock %}
+
+  </footer>
+
+  <!-- /.control-sidebar -->
+  <!-- Add the sidebar's background. This div must be placed
+  immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED JS SCRIPTS -->
+
+{% block javascript %}
+  <script type="text/javascript">
+      {{ static_include("js/jquery.min.js") | safe }}
+  </script>
+  <script type="text/javascript">
+      {{ static_include("js/bootstrap.min.js") | safe }}
+  </script>
+  <script type="text/javascript">
+      {{ static_include("js/adminlte.min.js") | safe }}
+  </script>
+{% endblock %}
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>
