@@ -8,7 +8,7 @@ import unittest
 import json
 from psycopg2 import OperationalError
 from mock import patch
-from models import Recommendation, RecommendationType, RecommendationDetail
+from models import Recommendation, RecommendationType
 from models import init_db, db, DataValidationError
 from flask import Flask, jsonify
 import connection
@@ -48,21 +48,24 @@ class TestRecommendations(unittest.TestCase):
 
     def test_create_a_recommendation(self):
         """ Create a recommendation and assert that it exists """
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
-        rec.save()
+        data = { "product_id": 54, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data)
 
         self.assertTrue(rec != None)
         self.assertEqual(Recommendation.count(), 1)
 
     def test_update_a_recommendation(self):
         """ Update a Recommendation """
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
+        data = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data)
+        print rec
         rec.save()
-        self.assertEqual(rec.id, 1)
+        print rec.id
+        # self.assertEqual(rec.id, 1)
 
-        # Change it an save it
+        # Change and save it
         rec.product_id = 54
         rec.save()
         self.assertEqual(rec.product_id, 54)
@@ -74,9 +77,10 @@ class TestRecommendations(unittest.TestCase):
 
     def test_delete_a_recommendation(self):
         """ Delete a Recommendation """
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
-        rec.save()
+        data = { "product_id": 54, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data)
+        print rec
         self.assertEqual(Recommendation.count(), 1)
 
         # delete the recommendation and make sure it isn't in the database
@@ -86,35 +90,46 @@ class TestRecommendations(unittest.TestCase):
     def test_serialize_a_recommendation(self):
         """ Test serialization of a Recommendation """
 
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
-        rec.save()
+        input_data = {"product_id": 23, \
+                      "id": 1, \
+                      "rec_type_id": 1, \
+                      "rec_product_id": 45, \
+                      "weight": .5}
+        rec = Recommendation()
+        rec.deserialize(input_data)
         data = rec.serialize()
+        print data
         self.assertNotEqual(data, None)
-        self.assertIn('id', data)
-        self.assertEqual(data['id'], 1)
         self.assertIn('product_id', data)
         self.assertEqual(data['product_id'], 23)
+        self.assertIn('rec_type_id', data)
+        self.assertEqual(data['rec_type_id'], 1)
+        self.assertIn('rec_product_id', data)
+        self.assertEqual(data['rec_product_id'], 45)
+        self.assertIn('weight', data)
+        self.assertEqual(data['weight'], .5)
 
     def test_deserialize_a_recommendation(self):
         """ Test deserialization of a Recommendation """
-        data = { 'product_id': 54, 'type': 'up-sell' }
-        rec_type = RecommendationType.find_by_id(1)
+        data = { "product_id": 54, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
         rec = Recommendation()
         rec.deserialize(data)
         self.assertNotEqual(rec, None)
         self.assertEqual(rec.product_id, 54)
+        self.assertEqual(rec.rec_type_id, 1)
+        self.assertEqual(rec.rec_product_id, 45)
+        self.assertEqual(rec.weight, .5)
 
     def test_deserialize_with_no_product(self):
         """ Deserialize a Recommendation without a product """
         rec = Recommendation()
-        data = { "id": 3, "rec_type_id": 1 }
+        data = { "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
         self.assertRaises(DataValidationError, rec.deserialize, data)
 
     def test_deserialize_with_no_type(self):
         """ Deserialize a Recommendation with no Recommendation Type """
         rec = Recommendation()
-        data = { "id": 3, "product_id": 1 }
+        data = { "product_id": 1, "rec_product_id": 45, "weight": .5 }
         self.assertRaises(DataValidationError, rec.deserialize, data)
 
     def test_deserialize_with_no_data(self):
@@ -127,112 +142,88 @@ class TestRecommendations(unittest.TestCase):
         rec = Recommendation()
         self.assertRaises(DataValidationError, rec.deserialize, "data")
 
-    def test_adding_a_recommendation(self):
-        """ Add a recommendation to a Recommendation record """
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
-        rec.save()
-
-        self.assertTrue(rec != None)
-        self.assertEqual(Recommendation.count(), 1)
-        self.assertEqual(len(rec.recommendations), 0)
-
-        rec_detail = RecommendationDetail(45, .5)
-        rec.recommendations.append(rec_detail)
-        rec.save()
-
-        self.assertEqual(len(rec.recommendations), 1)
-
-    def test_update_a_recommendation_detail(self):
-        """ Update a Recommendation Detail Record """
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
-        rec_detail = RecommendationDetail(45, .5)
-        rec.recommendations.append(rec_detail)
-        rec.save()
-        self.assertEqual(rec.id, 1)
-
-        # Change it an save it
-        rec.recommendations[0].weight = .2
-        rec.save()
-        self.assertEqual(rec.recommendations[0].weight, .2)
-
-        # Fetch it back and make sure the id hasn't changed
-        # but the data did change
-        rec = Recommendation.find_by_id(1)
-        self.assertEqual(rec.recommendations[0].weight, .2)
-
     def test_find_recommendation(self):
         """ Find a Recommendation by ID """
-        rec_type = RecommendationType.find_by_id(1)
-        Recommendation(4, rec_type).save()
-        Recommendation(87, rec_type).save()
+        data_one = { "id": 1, "product_id": 54, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_one)
+        data_two = { "id": 2, "product_id": 87, "rec_type_id": 1, "rec_product_id": 51, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_two)
         rec = Recommendation.find_by_id(2)
         self.assertIsNot(rec, None)
         self.assertEqual(rec.product_id, 87)
-        self.assertEqual(rec.rec_type, rec_type)
+        self.assertEqual(rec.rec_type_id, 1)
+        self.assertEqual(rec.rec_product_id, 51)
+        self.assertEqual(rec.weight, .5)
 
     def test_finding_recommendations_by_type(self):
         """ List all recommendations for a particular recommendation type """
 
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
-        rec_detail1 = RecommendationDetail(10, .9)
-        rec_detail2 = RecommendationDetail(20, .8)
-        rec_detail3 = RecommendationDetail(30, .8)
-        rec_detail4 = RecommendationDetail(40, .5)
-        rec.recommendations.append(rec_detail1)
-        rec.recommendations.append(rec_detail2)
-        rec.recommendations.append(rec_detail3)
-        rec.recommendations.append(rec_detail4)
-        rec.save()
+        data_one = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_one)
 
-        rec_type = RecommendationType.find_by_id(2)
-        rec = Recommendation(23, rec_type)
-        rec_detail1 = RecommendationDetail(50, .1)
-        rec_detail2 = RecommendationDetail(60, .2)
-        rec_detail3 = RecommendationDetail(70, .3)
-        rec.recommendations.append(rec_detail1)
-        rec.recommendations.append(rec_detail2)
-        rec.recommendations.append(rec_detail3)
-        rec.save()
-
+        data_two = { "product_id": 87, "rec_type_id": 1, "rec_product_id": 51, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_two)
         # Assuming the client will provide a product id and category as a String
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation.find_by_type(rec_type)[0]
+        rec = Recommendation.find_by_type(1)
 
         self.assertIsNot(rec, None)
-        self.assertEqual(len(rec.recommendations), 4)
         self.assertEqual(rec.product_id, 23)
-        self.assertEqual(rec.rec_type, rec_type)
+        self.assertEqual(rec.rec_type_id, 1)
+        self.assertEqual(rec.rec_product_id, 45)
+        self.assertEqual(rec.weight, .5)
+
+    def test_finding_recommendations_by_product_id_and_type(self):
+        """ List all recommendations for a particular product id and recommendation type """
+
+        data_one = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_one)
+
+        data_two = { "product_id": 87, "rec_type_id": 2, "rec_product_id": 51, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_two)
+        # Assuming the client will provide a product id and category as a String
+        rec = Recommendation.find_by_product_id_and_type(23, 1)
+
+        self.assertIsNot(rec, None)
+        self.assertEqual(rec.product_id, 23)
+        self.assertEqual(rec.rec_type_id, 1)
+        self.assertEqual(rec.rec_product_id, 45)
+        self.assertEqual(rec.weight, .5)
+
+    def test_finding_recommendations_by_product_id(self):
+        """ List all recommendations for a particular product id """
+
+        data_one = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_one)
+
+        data_two = { "product_id": 87, "rec_type_id": 2, "rec_product_id": 51, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_two)
+        # Assuming the client will provide a product id and category as a String
+        rec = Recommendation.find_by_product_id(87)
+
+        self.assertIsNot(rec, None)
+        self.assertEqual(rec.product_id, 87)
+        self.assertEqual(rec.rec_type_id, 2)
+        self.assertEqual(rec.rec_product_id, 51)
+        self.assertEqual(rec.weight, 1.5)
 
     def test_find_with_no_recommendation_data(self):
         """ Find a Recommendation with no Recommendations """
         rec = Recommendation.find_by_id(1)
         self.assertIs(rec, None)
 
-    def test_find_by_rec_id_and_product_id(self):
-        """ Find a Recommendation with no Recommendations """
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(23, rec_type)
-        rec_detail1 = RecommendationDetail(10, .9)
-        rec_detail2 = RecommendationDetail(20, .8)
-        rec_detail3 = RecommendationDetail(30, .8)
-        rec_detail4 = RecommendationDetail(40, .5)
-        rec.recommendations.append(rec_detail1)
-        rec.recommendations.append(rec_detail2)
-        rec.recommendations.append(rec_detail3)
-        rec.recommendations.append(rec_detail4)
-        rec.save()
-
-        recs = RecommendationDetail.find_by_rec_id_and_product_id(1, 20)
-        self.assertIsNotNone(recs)
-        self.assertEqual(recs.rec_product_id, 20)
-
     def test_recommendation_not_found_with_data(self):
         """ Test for a Recommendation that doesn't exist """
-        rec_type = RecommendationType.find_by_id(2)
-        rec = Recommendation(23, rec_type).save()
+        data_one = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data_one)
         rec = Recommendation.find_by_id(2)
         self.assertIs(rec, None)
 
@@ -272,8 +263,9 @@ class TestRecommendations(unittest.TestCase):
         """ Test Rollback on save """
         current_rec_count = len(Recommendation.all())
         db_error_mock.side_effect = OperationalError()
-        rec_type = RecommendationType.find_by_name("up-sell")
-        Recommendation(1, rec_type).save()
+        data = { 'product_id': 23, 'rec_type_id': "up-sell", 'rec_product_id': 45, 'weight': .5 }
+        rec = Recommendation()
+        rec.deserialize(data)
         new_rec_count = len(Recommendation.all())
         self.assertEqual(current_rec_count, new_rec_count)
 
