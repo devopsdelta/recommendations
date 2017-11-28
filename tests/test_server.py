@@ -68,11 +68,29 @@ class TestRecommendationServer(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_index(self):
+    def test_index_view(self):
         """ Test the Home Page """
         resp = self.app.get('/')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue('Recommendation Demo REST API Service' in resp.data)
+
+    def test_metadata_view(self):
+        """ Test the Metadata Page """
+        resp = self.app.get('/recommendations/metadata')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue('Manage Product Category Metadata' in resp.data)
+
+    def test_docs_view(self):
+        """ Test the Documentations Page """
+        resp = self.app.get('/recommendations/docs')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue('Documentation' in resp.data)
+
+    def test_manage_view(self):
+        """ Test the Manage Recommendations Page """
+        resp = self.app.get('/recommendations/manage')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue('Manage Recommendations' in resp.data)
 
     def test_get_recommendation_list(self):
         """ Get a list of Recommendation """
@@ -80,6 +98,27 @@ class TestRecommendationServer(unittest.TestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(json.loads(resp.data)), 4)
+
+    def test_query_recommendation_list_by_type(self):
+        """ Query Recommendation By Type """
+        resp = self.app.get('/recommendations?type=up-sell')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(json.loads(resp.data)), 2)
+
+    def test_query_recommendation_list_by_product(self):
+        """ Query Recommendation By Product Id """
+        resp = self.app.get('/recommendations?product_id=10')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(json.loads(resp.data)), 1)
+
+    def test_query_recommendation_list_by_product_id_and_type_id(self):
+        """ Query Recommendation By Product Id and Type """
+        resp = self.app.get('/recommendations?product_id=10&type=up-sell')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(json.loads(resp.data)), 1)
 
     def test_get_recommendation(self):
         """ Get one Recommendation """
@@ -119,7 +158,7 @@ class TestRecommendationServer(unittest.TestCase):
         data_obj = json.dumps(new_recommendation)
 
         resp = self.app.post('/recommendations', data=data_obj, content_type='application/json')
-        logging.error(resp)
+        
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Make sure location header is set
