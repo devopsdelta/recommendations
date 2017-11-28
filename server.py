@@ -74,7 +74,7 @@ def internal_server_error(error):
     return jsonify(status=500, error='Internal Server Error', message=message), 500
 
 ######################################################################
-# GET INDEX
+# Views
 ######################################################################
 @app.route('/')
 def index():
@@ -83,21 +83,20 @@ def index():
                    version='1.0',
                    paths=url_for('list_recommendations', _external=True)), status.HTTP_200_OK
 
-######################################################################
-# GET Matadata Page
-######################################################################
 @app.route('/recommendations/metadata')
 def metadata():
-    """ Root URL response """
+    """ Metadata View """
     return render_template('metadata.html', name='Manage Recommendation Meta Data'), status.HTTP_200_OK
 
-######################################################################
-# GET Documentation
-######################################################################
 @app.route('/recommendations/docs')
 def docs():
-    """ Root URL response """
+    """ Documentation View """
     return render_template('docs.html', name='Documentation'), status.HTTP_200_OK
+
+@app.route('/recommendations/manage')
+def manage_recommendations():
+    """ Manage Recommendation View """
+    return render_template('recommendations.html'), status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL RECOMMENDATIONS
@@ -128,7 +127,7 @@ def list_recommendations():
 
     results = [rec.serialize() for rec in recs if rec is not None]
 
-    return render_template('recommendations.html', data=jsonify(results)), status.HTTP_200_OK
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 
 ######################################################################
