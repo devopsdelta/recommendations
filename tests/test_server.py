@@ -12,7 +12,7 @@ from flask_api import status    # HTTP Status Codes
 import server
 import mock
 from models import db, init_db
-from models import Recommendation, RecommendationType, RecommendationDetail
+from models import Recommendation, RecommendationType
 from connection import get_database_uri
 
 os.environ['TEST'] = 'True'

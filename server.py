@@ -16,8 +16,8 @@ import logging
 from flask import Flask, jsonify, request, url_for, make_response, json, render_template
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
-from models import Recommendation, RecommendationType, RecommendationDetail, init_db, DataValidationError
-
+from models import Recommendation, RecommendationType, init_db, DataValidationError
+# Create Flask application
 app = Flask(__name__)
 app.config.from_object('config')
 
@@ -161,17 +161,17 @@ def create_recommendations():
     And a Type in the following format:
         { 'product_id': <int>, 'type': '<[up-sell|accessory|cross-sell]>' }
     """
-
     data = request.get_json()
     rec = Recommendation()
     rec.deserialize(data)
 
-    recs = Recommendation.find_by_product_id_and_type(rec.product_id, rec.rec_type)
+
+    #recs = Recommendation.find_by_product_id_and_type(rec.product_id, rec.rec_type)
 
     # TODO: Based on our session, we decided that in the event a previous recommendation
     #       Is found we should we delete the previous recommendation and rerun the engine
 
-    if not recs:
+    # if not recs:
         # TODO: Determine what products will be recommended based on product id and
         #       Recommendation type
 
@@ -186,13 +186,13 @@ def create_recommendations():
         #       Any reason our engine is unable to make recommendations
         #       (i.e. the Product service is down) return a standard set of
         #       Products (for isinstance, most popular)
-        rec_detail1 = RecommendationDetail(10, .6)
-        rec_detail2 = RecommendationDetail(20, .7)
-        rec_detail3 = RecommendationDetail(30, .67)
-        rec.recommendations.append(rec_detail1)
-        rec.recommendations.append(rec_detail2)
-        rec.recommendations.append(rec_detail3)
-        rec.save()
+        # rec_detail1 = RecommendationDetail(10, .6)
+        # rec_detail2 = RecommendationDetail(20, .7)
+        # rec_detail3 = RecommendationDetail(30, .67)
+        # rec.recommendations.append(rec_detail1)
+        # rec.recommendations.append(rec_detail2)
+        # rec.recommendations.append(rec_detail3)
+    rec.save()
 
     message = rec.serialize()
     location_url = url_for('get_recommendations', recommendation_id=rec.id, _external=True)

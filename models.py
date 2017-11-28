@@ -116,9 +116,10 @@ class RecommendationType(db.Model):
     # Category="originalproductCategory", Price > current Product Price + 1
 
 
-    def __init__(self, Name=None, active=True):
+    def __init__(self, Name=None, active=True, query=None):
         self.name = Name
         self.is_active = active
+        self.product_query = query
 
     def __repr__(self):
         return '{ "type_id": %i, "name": "%s" }' % (self.id, self.name)
@@ -168,7 +169,7 @@ class Recommendation(db.Model):
         """ Serializes a Recommendation into a dictionary """
         return {'id': self.id, \
                 'product_id': self.product_id, \
-                'rec_type_id': self.rec_type_id, \
+                'rec_type': self.rec_type.serialize(), \
                 'rec_product_id': self.rec_product_id, \
                 'weight': self.weight}
 
@@ -186,7 +187,7 @@ class Recommendation(db.Model):
             self.product_id = data['product_id']
             self.rec_type_id = data['rec_type_id']
             self.rec_product_id = data['rec_product_id']
-            self.weight = data['weight']
+            self.weight = float(data['weight'])
         except KeyError as err:
             raise DataValidationError('Invalid recommendation: missing ' + err.args[0])
         return
@@ -239,6 +240,6 @@ def init_db(app):
 
 def seed_db():
     logging.info("Seeding database tables")
-    RecommendationType(Name='up-sell').save()
-    RecommendationType(Name='accessory').save()
-    RecommendationType(Name='cross-sell').save()
+    RecommendationType(Name='up-sell', query='category=values').save()
+    RecommendationType(Name='accessory', query='category=values').save()
+    RecommendationType(Name='cross-sell', query='category=values').save()
