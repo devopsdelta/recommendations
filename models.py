@@ -28,12 +28,8 @@ Recommendation
   rec_id      (int)      - Auto incrimented id (PK)
   product_id  (int)      - the id of the product that will be used to get recommendations for
   rec_type_id  (int)     - The type of recommendation
-
-RecommendationDetail
-  prod_rec_id  (int)     - Auto incrimented id (PK)
-  rec_id       (int)     - foreign key to Recommendation table
-  weight       (float)   - Weight determined by our algorithm
   rec_prod_id  (int)     - The id of the product being recommended
+  weight       (float)   - Weight determined by our algorithm
 
 """
 import threading
@@ -68,10 +64,7 @@ class BaseModel(Model):
             if not self.id:
                 db.session.add(self)
 
-            print self.id
             db.session.commit()
-            db.session.refresh(self)
-            print self.id
         except:
             db.session.rollback()
 
@@ -100,7 +93,6 @@ class BaseModel(Model):
     @classmethod
     def find_by_id(cls, id):
         """ Find a Record by primary key """
-        print id
         return cls.query.get(id)
 
 db = SQLAlchemy(model_class=BaseModel)
