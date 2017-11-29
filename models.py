@@ -234,7 +234,6 @@ def init_db(app):
             seed_db()
 
     except Exception as e:
-        print "Exception"
         logging.fatal(e.message)
         raise OperationalError(e.message)
 

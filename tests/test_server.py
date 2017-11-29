@@ -138,6 +138,11 @@ class TestRecommendationServer(unittest.TestCase):
     def test_create_recommendation(self):
         """ Create a Recommendation """
         # save the current number of recommendations for later comparrison
+        data = { "product_id": 33, "rec_type_id": 1, "rec_product_id": 41, "weight": 3.5 }
+        rec = Recommendation()
+        rec.deserialize(data)
+        rec.save()
+
         recommendation_count = self.get_recommendation_count()
 
         # add a new recommendation
@@ -241,7 +246,6 @@ class TestRecommendationServer(unittest.TestCase):
         """ Test a Bad Request error from Find By Type """
         bad_request_mock.side_effect = ValueError()
         resp = self.app.get('/recommendations', query_string='rec_type_id=2&&product_id=32')
-        print resp
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_bad_post_request(self):
@@ -256,7 +260,6 @@ class TestRecommendationServer(unittest.TestCase):
         """ Test a search that returns bad data """
         recommendation_find_mock.return_value = 4
         resp = self.app.get('/recommendations', query_string='rec_type_id=1&product_id=1')
-        print resp
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ######################################################################

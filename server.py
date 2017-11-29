@@ -106,37 +106,25 @@ def manage_recommendations():
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
     """ Returns all of the Recommendations """
-    rec_type_id = request.args.get('rec_type_id')
-    print rec_type_id
+    type_name = request.args.get('rec_type_id')
     product_id = request.args.get('product_id')
-    print product_id
     results = []
+    rec_type = None
 
-    if rec_type_id:
-        rec_type = RecommendationType.find_by_id(rec_type_id)
-        print rec_type
+    if type_name:
+        rec_type = RecommendationType.find_by_id(type_name)
+
         if not rec_type:
-            raise NotFound("Recommendations with type '{}' was not found.".format(rec_type_id))
-
-    # rec_type_id = RecommendationType.find_by_id(id=rec_type)
-    # print rec_type_id
-    # if type_name:
-    #     rec_type = RecommendationType.find_by_name(rec_name=type_name)
-    #
-    #     if not rec_type:
-    #         raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
+            raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
 
     if rec_type and product_id:
         recs = Recommendation.find_by_product_id_and_type(product_id, rec_type)
     elif rec_type:
         recs = Recommendation.find_by_type(rec_type)
-        print "Find by rectype"
-        print recs
     elif product_id:
         recs = Recommendation.find_by_product_id(product_id)
     else:
         recs = Recommendation.all()
-        print recs
 
     results = [rec.serialize() for rec in recs if rec is not None]
 
