@@ -61,9 +61,7 @@ class TestRecommendations(unittest.TestCase):
         data = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
         rec = Recommendation()
         rec.deserialize(data)
-        print rec
         rec.save()
-        print rec.id
         # self.assertEqual(rec.id, 1)
 
         # Change and save it
@@ -173,14 +171,15 @@ class TestRecommendations(unittest.TestCase):
         rec.deserialize(data_one)
         rec.save()
 
-        data_two = { "product_id": 87, "rec_type_id": 1, "rec_product_id": 51, "weight": .5 }
+        data_two = { "product_id": 87, "rec_type_id": 2, "rec_product_id": 51, "weight": .5 }
         rec = Recommendation()
         rec.deserialize(data_two)
         rec.save()
 
         # Assuming the client will provide a product id and category as a String
         rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation.find_by_product_id_and_type(23, rec_type)[0]
+        rec = Recommendation.find_by_type(rec_type)[0]
+        print rec
 
         self.assertIsNot(rec, None)
         self.assertEqual(rec.product_id, 23)

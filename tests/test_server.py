@@ -33,32 +33,24 @@ class TestRecommendationServer(unittest.TestCase):
         """ Runs before each test """
         server.initialize_db()
 
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(10, rec_type)
-        rec.dislike_count = 1
-        rec_detail1 = RecommendationDetail(55, .9)
-        rec.recommendations.append(rec_detail1)
+        data = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
+        rec = Recommendation()
+        rec.deserialize(data)
         rec.save()
 
-        rec_type = RecommendationType.find_by_id(2)
-        rec = Recommendation(20, rec_type)
-        rec.dislike_count = 2
-        rec_detail1 = RecommendationDetail(66, .8)
-        rec.recommendations.append(rec_detail1)
+        data = { "product_id": 51, "rec_type_id": 2, "rec_product_id": 50, "weight": 1.5 }
+        rec = Recommendation()
+        rec.deserialize(data)
         rec.save()
 
-        rec_type = RecommendationType.find_by_id(3)
-        rec = Recommendation(30, rec_type)
-        rec_detail1 = RecommendationDetail(77, .7)
-        rec.dislike_count = 3
-        rec.recommendations.append(rec_detail1)
+        data = { "product_id": 45, "rec_type_id": 3, "rec_product_id": 4, "weight": 2.5 }
+        rec = Recommendation()
+        rec.deserialize(data)
         rec.save()
 
-        rec_type = RecommendationType.find_by_id(1)
-        rec = Recommendation(40, rec_type)
-        rec.dislike_count = 4
-        rec_detail1 = RecommendationDetail(88, .6)
-        rec.recommendations.append(rec_detail1)
+        data = { "product_id": 33, "rec_type_id": 1, "rec_product_id": 41, "weight": 3.5 }
+        rec = Recommendation()
+        rec.deserialize(data)
         rec.save()
 
         self.app = server.app.test_client()
@@ -127,8 +119,10 @@ class TestRecommendationServer(unittest.TestCase):
         data = json.loads(resp.data)
 
         self.assertEqual(data['id'], 2)
-        self.assertEqual(data['product_id'], 20)
-        self.assertEqual(data['rec_type_id'], 2)
+        self.assertEqual(data['product_id'], 51)
+        self.assertEqual(data['rec_type']['id'], 2)
+        self.assertEqual(data['rec_product_id'], 50)
+        self.assertEqual(data['weight'], 1.5)
 
     def test_get_recommendation_not_found(self):
         """ Get a Recommendation thats not found """
@@ -137,16 +131,9 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_get_recommendation_when_no_data_exist(self):
         """ Get a Recommendation thats not found when there is no data """
-        RecommendationDetail.remove_all()
         Recommendation.remove_all()
-        resp = self.app.get('/recommendations/0')
+        resp = self.app.get('/recommendations/2')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_rating_recommendation(self):
-        """ Rating of Recommendation """
-        resp = self.app.get('/recommendations/rating')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.data, '2.5')
 
     def test_create_recommendation(self):
         """ Create a Recommendation """
@@ -154,11 +141,14 @@ class TestRecommendationServer(unittest.TestCase):
         recommendation_count = self.get_recommendation_count()
 
         # add a new recommendation
-        new_recommendation = {'product_id': 20, 'type': 'up-sell'}
+        new_recommendation = {"product_id": 17, \
+                              "rec_type_id": 3, \
+                              "rec_product_id": 42, \
+                              "weight": 4.6}
         data_obj = json.dumps(new_recommendation)
 
         resp = self.app.post('/recommendations', data=data_obj, content_type='application/json')
-        
+
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Make sure location header is set
@@ -168,7 +158,7 @@ class TestRecommendationServer(unittest.TestCase):
         # Check the data is correct
         new_json = json.loads(resp.data)
 
-        self.assertEqual(new_json['product_id'], 20)
+        self.assertEqual(new_json['product_id'], 17)
 
         # check that count has gone up and includes sammy
         resp = self.app.get('/recommendations')
@@ -179,7 +169,10 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_update_recommendation(self):
         """ Update a Recommendation """
-        rec_changes = {'product_id': 21, 'type': 'cross-sell'}
+        rec_changes = {"product_id": 50, \
+                       "rec_type_id": 2, \
+                       "rec_product_id": 50, \
+                       "weight": 1.5}
         data = json.dumps(rec_changes)
         resp = self.app.put('/recommendations/2', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -187,53 +180,13 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.get('/recommendations/2', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_json = json.loads(resp.data)
-        self.assertEqual(new_json['product_id'], 21)
+        self.assertEqual(new_json['product_id'], 50)
 
     def test_update_recommendation_not_found(self):
         """ Update a Recommendation that can't be found """
         new_recommendation = {'product_id': 21, 'rec_type_id': 3}
         data = json.dumps(new_recommendation)
         resp = self.app.put('/recommendations/0', data=data, content_type='application/json')
-        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_dislike_recommendation(self):
-        """ Dislike a Recommendation """
-
-        resp = self.app.get('/recommendations')
-        data = json.loads(resp.data)
-        rec_id = data[0]['rec_type_id']
-        product_id = data[0]['recommendations'][0]['rec_product_id']
-        dislike_count = data[0]['recommendations'][0]['dislike_count']
-
-        resp = self.app.put('/recommendations/%i/%i/dislike' % (rec_id, product_id), content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        resp = self.app.get('/recommendations/%i' % rec_id, content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        new_json = json.loads(resp.data)
-        self.assertEqual(new_json['recommendations'][0]['dislike_count'], dislike_count + 1)
-
-    # TODO: This might not be applicable
-    # def test_dislike_recommendation_with_deletion(self):
-    #     """ Delete a Recommendation that is disliked """
-    #      # save the current number of recommendations for later comparrison
-    #     recommendation_count = self.get_recommendation_count()
-    #
-    #     new_recommendation = {}
-    #     data = json.dumps(new_recommendation)
-    #     resp = self.app.put('/recommendations/3/dislike', data=data, content_type='application/json')
-    #     self.assertEqual(resp.status_code, status.HTTP_200_OK)
-    #     # Since dislikes count reached the threshold (5), recommendation with id 3 is deleted
-    #     # Hence get(/recommendations/3) must return 404 NOT FOUND
-    #     resp = self.app.get('/recommendations/3', content_type='application/json')
-    #     self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-    #     self.assertTrue(len(resp.data) > 0)
-    #     new_count = self.get_recommendation_count()
-    #     self.assertEqual(new_count, recommendation_count - 1)
-
-    def test_dislike_recommendation_not_found(self):
-        """ Dislike a Recommendation that can't be found"""
-
-        resp = self.app.put('/recommendations/0/dislike', content_type='application/json')
         self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_recommendation(self):
@@ -243,7 +196,7 @@ class TestRecommendationServer(unittest.TestCase):
 
         resp = self.app.get('/recommendations')
         data = json.loads(resp.data)
-        rec_id = data[0]['rec_type_id']
+        rec_id = data[0]['id']
 
         # delete a recommendation
         resp = self.app.delete('/recommendations/%i' % rec_id, content_type='application/json')
@@ -260,7 +213,7 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_get_query_recommendation_by_type(self):
         """ Query Recommendation by Category """
-        resp = self.app.get('/recommendations', query_string='type=up-sell')
+        resp = self.app.get('/recommendations', query_string='rec_type_id=1')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(len(resp.data) > 0)
         data = json.loads(resp.data)[0]
@@ -268,14 +221,14 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_get_query_with_unknown_type(self):
         """ Get a Recommendation that doesn't exist by type """
-        resp = self.app.get('/recommendations', query_string='type=milk')
+        resp = self.app.get('/recommendations', query_string='rec_type_id=7')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_query_recommendation_when_no_data_exist(self):
         """ Get a Recommendation thats not found """
         db.drop_all()
         db.create_all()
-        resp = self.app.get('/recommendations', query_string='type=milk')
+        resp = self.app.get('/recommendations', query_string='rec_type_id=1')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_method_not_allowed(self):
@@ -287,7 +240,8 @@ class TestRecommendationServer(unittest.TestCase):
     def test_bad_data_request(self, bad_request_mock):
         """ Test a Bad Request error from Find By Type """
         bad_request_mock.side_effect = ValueError()
-        resp = self.app.get('/recommendations', query_string='type=accessory&product_id=32')
+        resp = self.app.get('/recommendations', query_string='rec_type_id=2&&product_id=32')
+        print resp
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_bad_post_request(self):
@@ -301,7 +255,8 @@ class TestRecommendationServer(unittest.TestCase):
     def test_search_bad_data(self, recommendation_find_mock):
         """ Test a search that returns bad data """
         recommendation_find_mock.return_value = 4
-        resp = self.app.get('/recommendations', query_string='type=up-sell&product_id=1')
+        resp = self.app.get('/recommendations', query_string='rec_type_id=1&product_id=1')
+        print resp
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ######################################################################

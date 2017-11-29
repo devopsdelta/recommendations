@@ -201,7 +201,7 @@ class Recommendation(db.Model):
     @classmethod
     def find_by_type(cls, rec_type):
         """ Find all Recommendations by Recommenation Type """
-        return (cls.query.filter_by(rec_type_id = RecommendationType.id)
+        return (cls.query.filter_by(rec_type_id = rec_type.id)
                 .filter(cls.rec_type.has(RecommendationType.is_active == True))).all()
 
     @classmethod
