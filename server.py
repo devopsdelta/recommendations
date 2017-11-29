@@ -13,16 +13,22 @@ DELETE /recommendations/{id} - deletes a Recommendations record in the database
 import os
 import sys
 import logging
-from flask import Flask, jsonify, request, url_for, make_response, json
+from flask import Flask, jsonify, request, url_for, make_response, json, render_template
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
 from models import Recommendation, RecommendationType, RecommendationDetail, init_db, DataValidationError
-# Create Flask application
+
 app = Flask(__name__)
 app.config.from_object('config')
 
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '8081')
+
+@app.template_global()
+def static_include(filename):
+    fullpath = os.path.join(app.static_folder, filename)
+    with open(fullpath, 'r') as f:
+        return f.read()
 
 ######################################################################
 # Error Handlers
@@ -68,15 +74,29 @@ def internal_server_error(error):
     return jsonify(status=500, error='Internal Server Error', message=message), 500
 
 ######################################################################
-# GET INDEX
+# Views
 ######################################################################
 @app.route('/')
 def index():
     """ Root URL response """
-    return jsonify(name='Recommendation Demo REST API Service',
+    return render_template('index.html', name='Recommendation Demo REST API Service',
                    version='1.0',
-                   paths=url_for('list_recommendations', _external=True)
-                  ), status.HTTP_200_OK
+                   paths=url_for('list_recommendations', _external=True)), status.HTTP_200_OK
+
+@app.route('/recommendations/metadata')
+def metadata():
+    """ Metadata View """
+    return render_template('metadata.html', name='Manage Recommendation Meta Data'), status.HTTP_200_OK
+
+@app.route('/recommendations/docs')
+def docs():
+    """ Documentation View """
+    return render_template('docs.html', name='Documentation'), status.HTTP_200_OK
+
+@app.route('/recommendations/manage')
+def manage_recommendations():
+    """ Manage Recommendation View """
+    return render_template('recommendations.html'), status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL RECOMMENDATIONS
@@ -106,7 +126,9 @@ def list_recommendations():
         recs = Recommendation.all()
 
     results = [rec.serialize() for rec in recs if rec is not None]
+
     return make_response(jsonify(results), status.HTTP_200_OK)
+
 
 ######################################################################
 # RETRIEVE A RECOMMENDATION
