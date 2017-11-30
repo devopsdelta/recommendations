@@ -13,11 +13,13 @@ DELETE /recommendations/{id} - deletes a Recommendations record in the database
 import os
 import sys
 import logging
+import requests
 from flask import Flask, jsonify, request, url_for, make_response, json, render_template
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
-from models import Recommendation, RecommendationType, RecommendationDetail, init_db, DataValidationError
-
+from models import Recommendation, RecommendationType, init_db, DataValidationError
+from engine import Engine
+# Create Flask application
 app = Flask(__name__)
 app.config.from_object('config')
 
@@ -106,12 +108,11 @@ def list_recommendations():
     """ Returns all of the Recommendations """
     type_name = request.args.get('type')
     product_id = request.args.get('product_id')
-    recommendations = []
     results = []
     rec_type = None
 
     if type_name:
-        rec_type = RecommendationType.find_by_name(rec_name=type_name)
+        rec_type = RecommendationType.find_by_name(type_name)
 
         if not rec_type:
             raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
@@ -161,17 +162,17 @@ def create_recommendations():
     And a Type in the following format:
         { 'product_id': <int>, 'type': '<[up-sell|accessory|cross-sell]>' }
     """
-
     data = request.get_json()
     rec = Recommendation()
     rec.deserialize(data)
 
-    recs = Recommendation.find_by_product_id_and_type(rec.product_id, rec.rec_type)
+
+    #recs = Recommendation.find_by_product_id_and_type(rec.product_id, rec.rec_type)
 
     # TODO: Based on our session, we decided that in the event a previous recommendation
     #       Is found we should we delete the previous recommendation and rerun the engine
 
-    if not recs:
+    # if not recs:
         # TODO: Determine what products will be recommended based on product id and
         #       Recommendation type
 
@@ -186,13 +187,13 @@ def create_recommendations():
         #       Any reason our engine is unable to make recommendations
         #       (i.e. the Product service is down) return a standard set of
         #       Products (for isinstance, most popular)
-        rec_detail1 = RecommendationDetail(10, .6)
-        rec_detail2 = RecommendationDetail(20, .7)
-        rec_detail3 = RecommendationDetail(30, .67)
-        rec.recommendations.append(rec_detail1)
-        rec.recommendations.append(rec_detail2)
-        rec.recommendations.append(rec_detail3)
-        rec.save()
+        # rec_detail1 = RecommendationDetail(10, .6)
+        # rec_detail2 = RecommendationDetail(20, .7)
+        # rec_detail3 = RecommendationDetail(30, .67)
+        # rec.recommendations.append(rec_detail1)
+        # rec.recommendations.append(rec_detail2)
+        # rec.recommendations.append(rec_detail3)
+    rec.save()
 
     message = rec.serialize()
     location_url = url_for('get_recommendations', recommendation_id=rec.id, _external=True)
@@ -243,65 +244,6 @@ def delete_recommendations(recommendation_id):
     recommendation.delete()
 
     return make_response('', status.HTTP_204_NO_CONTENT)
-
-######################################################################
-# ACTION 2 ON RECOMMENDATION
-######################################################################
-@app.route('/recommendations/rating', methods=['GET'])
-def rating_recommendation():
-    """
-    Rate the Recommendation app
-
-    This endpoint will return the overall rating of Recommendation app
-    """
-    recommendations = []
-
-    recommendations = Recommendation.all()
-    overall_rating = 0
-    count = 0
-
-    for rec in recommendations:
-        rating = rec.dislike_count
-        overall_rating = int(overall_rating) + int(rating)
-        count += 1
-
-    rate = float(overall_rating) / float(count)
-
-    return make_response(str(rate), status.HTTP_200_OK)
-
-######################################################################
-# ACTION 1 ON RECOMMENDATION
-######################################################################
-@app.route('/recommendations/<int:rec_id>/<int:product_id>/dislike', methods=['PUT'])
-def dislike_recommendation(rec_id, product_id):
-    """
-    Dislike a Recommendation
-
-    This endpoint will delete a Recommendation if 5 or more users hit "dislike" URL
-    for that particular recommendation
-    """
-    rec_detail = RecommendationDetail.find_by_rec_id_and_product_id(rec_id, product_id)
-
-    if not rec_detail:
-        raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
-
-    # TODO: This could be a good candidate for a config variable/global variable
-    threshold = 5
-
-    if(rec_detail.dislike_count + 1 >= threshold):
-        # TODO: No action should be taken after the threshold has been exceeded.
-        #       To ensure we don't recommend this product again we should Not
-        #       Choose this product again.
-        #       Possible solutions:
-        #       1. Modify the weight function to factor dislike count
-        #       2. Add an is_active or is_visible field to the database for this
-        #          Product and hide the results if the threshold has been reached.
-        rec_detail.delete()
-    else:
-        rec_detail.dislike_count += 1
-        rec_detail.save()
-
-    return make_response('Thank you for your feedback! We are working on it.\n', status.HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

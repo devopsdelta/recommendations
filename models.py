@@ -28,13 +28,8 @@ Recommendation
   rec_id      (int)      - Auto incrimented id (PK)
   product_id  (int)      - the id of the product that will be used to get recommendations for
   rec_type_id  (int)     - The type of recommendation
-
-RecommendationDetail
-  prod_rec_id  (int)     - Auto incrimented id (PK)
-  rec_id       (int)     - foreign key to Recommendation table
-  weight       (float)   - Weight determined by our algorithm
   rec_prod_id  (int)     - The id of the product being recommended
-  dislike_count(int)     - Was the provided disliked
+  weight       (float)   - Weight determined by our algorithm
 
 """
 import threading
@@ -50,8 +45,6 @@ from sqlalchemy.orm import relationship, backref, sessionmaker
 from flask_sqlalchemy import Model, SQLAlchemy
 from psycopg2 import OperationalError
 from connection import get_database_uri
-
-LOCAL_HOST_URI = u'postgres://recommendations:password@localhost:5432/recommendations'
 
 """ Base DB Model """
 class BaseModel(Model):
@@ -69,6 +62,13 @@ class BaseModel(Model):
             if not self.id:
                 db.session.add(self)
 
+            db.session.commit()
+        except:
+            db.session.rollback()
+
+    def delete(self):
+        try:
+            db.session.delete(self)
             db.session.commit()
         except:
             db.session.rollback()
@@ -109,27 +109,29 @@ class RecommendationType(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(40), unique=True, nullable=False)
     is_active = Column(Boolean, nullable=False)
-    # TODO: Store the query that will be used to call the Product service
-    # product_query = Column(String(255), nullable=False) Category="originalproductCategory", Price > current Product Price + 1
+    product_query = Column(String(255), nullable=False)
+    # Category="originalproductCategory", Price > current Product Price + 1
 
 
-    def __init__(self, Name=None, active=True):
+    def __init__(self, Name=None, active=True, query=None):
         self.name = Name
         self.is_active = active
+        self.product_query = query
 
     def __repr__(self):
         return '{ "type_id": %i, "name": "%s" }' % (self.id, self.name)
 
     def serialize(self):
         """ Serializes a Recommendation Type into a dictionary """
-        return { 'id': self.id,
-                'name': self.name,
+        return { 'id': self.id, \
+                'name': self.name, \
                 'is_active': self.is_active}
 
     @classmethod
     def find_by_name(cls, rec_name):
         """ Find a Recommendation Type By Name """
-        return cls.query.filter_by(name=str(rec_name.lower())).first()
+        return (cls.query.filter_by(name=str(rec_name.lower()))
+                .filter_by(is_active=True)).first()
 
 # PK | PRODUCT_ID   | TYPE
 # 1  | 2 (Converse) | 1 (up-sell)
@@ -138,40 +140,32 @@ class RecommendationType(db.Model):
 """ Recommendation per category """
 class Recommendation(db.Model):
     """ Class that represents a Recommendation """
-    # PK | Product Id | Type Id | Dislike Count
-    # --------------------------------------------------------
-    # 1  | 23         | 1       | "?category=shoes&price>0"
-    #
+    # PK | Product Id | Type Id | Recommendation Prod Id | Weight
+    # ------------------------------------------------------------
+    # 1  | 23         | 1       | 32                    | .6
+    # 2  | 23         | 2       | 34                    | .6
+    # 3  | 33         | 1       | 45                    | .6
+
 
     __tablename__ = 'recommendation'
     id = Column(Integer, primary_key = True)
     product_id = Column(Integer, unique=False)
     rec_type_id = Column(Integer, ForeignKey('recommendation_type.id'), nullable=False)
-    dislike_count = Column(Integer, nullable=False, default=0)
+    rec_product_id = Column(Integer, nullable=False)
+    weight = Column(Float, nullable=False)
 
     rec_type = relationship('RecommendationType')
-    recommendations = relationship('RecommendationDetail', backref="recommendation")
-
-    UniqueConstraint('product_id', 'rec_type_id', name='uix_product_id_type_id')
-
-    def __init__(self, prod_id=-1, rec_type=None):
-        self.product_id = prod_id
-        if rec_type:
-            self.rec_type = RecommendationType.find_by_id(rec_type.id)
-        else:
-            self.rec_type = RecommendationType.find_by_id(1)
 
     def __repr__(self):
-        return '{ "id": %i, "product_id": %i, "type_id": %i, "rec_type": "%s", "dislike_count": %i }' % (self.id, self.product_id, self.rec_type_id, self.rec_type.name, self.dislike_count)
+        return '{ "id": %s, "product_id": %s, "rec_type_id": %s, "rec_product_id": %s, "weight": %s}' % (self.id, self.product_id, self.rec_type_id, self.rec_product_id, self.weight)
 
     def serialize(self):
         """ Serializes a Recommendation into a dictionary """
-        return { 'id': self.id,
-                'product_id': self.product_id,
-                'rec_type_id': self.rec_type_id,
-                'rec_type': self.rec_type.serialize(),
-                'recommendations': [rec.serialize() for rec in self.recommendations],
-                'dislike_count': self.dislike_count}
+        return {'id': self.id, \
+                'product_id': self.product_id, \
+                'rec_type': self.rec_type.serialize(), \
+                'rec_product_id': self.rec_product_id, \
+                'weight': self.weight}
 
     def deserialize(self, data):
         """
@@ -184,96 +178,33 @@ class Recommendation(db.Model):
             raise DataValidationError('Invalid recommendation: body of request contained bad or no data')
 
         try:
-            r_type = RecommendationType.find_by_name(data['type'])
-
             self.product_id = data['product_id']
-            self.rec_type_id = r_type.id
+            self.rec_type_id = data['rec_type_id']
+            self.rec_product_id = data['rec_product_id']
+            self.weight = float(data['weight'])
         except KeyError as err:
             raise DataValidationError('Invalid recommendation: missing ' + err.args[0])
         return
 
-    def delete(self):
-        try:
-            for rec in self.recommendations:
-                rec.delete()
-
-            db.session.delete(self)
-            db.session.commit()
-        except:
-            db.session.rollback()
-
     @classmethod
     def find_by_product_id(cls, prod_id):
         """ Find all Recommendations by Product Id """
-        return cls.query.filter_by(product_id=int(prod_id)).all()
+        return (cls.query.filter_by(product_id=int(prod_id))
+                .filter(cls.rec_type.has(RecommendationType.is_active == True))).all()
 
     @classmethod
     def find_by_type(cls, rec_type):
         """ Find all Recommendations by Recommenation Type """
-        return cls.query.filter_by(rec_type_id = rec_type.id).all()
+        return (cls.query.filter_by(rec_type_id = rec_type.id)
+                .filter(cls.rec_type.has(RecommendationType.is_active == True))).all()
 
     @classmethod
     def find_by_product_id_and_type(cls, prod_id, rec_type):
         """ Find all Recommendations by Product Id and Type """
         return (cls.query
                 .filter_by(product_id=int(prod_id))
-                .filter(cls.rec_type.has(RecommendationType.id == rec_type.id))).all()
-
-class RecommendationDetail(db.Model):
-    """ Represents the details of a recommendation """
-
-    __tablename__ = 'recommendation_detail'
-    id = Column(Integer, primary_key = True)
-    rec_id = Column(Integer, ForeignKey('recommendation.id'), nullable=False)
-    rec_product_id = Column(Integer, nullable=False)
-    weight = Column(Float, nullable=False)
-    dislike_count = Column(Integer, nullable=False, default=0)
-
-    UniqueConstraint('rec_id', 'rec_product_id', name='uix_rec_id_rec_product_id')
-
-    # PK | Recommendation Id | Recommendation Prod Id | Weight | Dislike Count
-    # --------------------------------------------------------------------------
-    # 1  | 1                 | 32                     | .6     | 0
-    # 2  | 1                 | 34                     | .6     | 3
-    # 3  | 1                 | 45                     | .6     | 0
-    # 4  | 2                 | 23                     | .6     | 0
-    # 5  | 2                 | 33                     | .6     | 1
-    # 6  | 2                 | 43                     | .6     | 0
-
-    def __init__(self, recommended_prod_id, fweight):
-        self.rec_product_id = recommended_prod_id
-        self.weight = fweight
-
-    def __repr__(self):
-        return '{ "id": %i, "rec_id": %i, "rec_product_id": %i, "weight": %f, "dislike_count": %i }' % \
-            (self.id, self.rec_id, self.rec_product_id, self.weight, self.dislike_count)
-
-    def serialize(self):
-        """ Serializes a Recommendation Detail into a dictionary """
-        return { 'id': self.id,
-                'rec_id': self.rec_id,
-                'rec_product_id': self.rec_product_id,
-                'weight': self.weight,
-                'dislike_count': self.dislike_count }
-
-    def delete(self):
-        try:
-            db.session.delete(self)
-            db.session.commit()
-        except:
-            db.session.rollback()
-
-    @classmethod
-    def find_by_recommendation_id(cls, recommendation_id):
-        """ Find all Recommendations by Product Id """
-        return cls.query.filter_by(rec_id=recommendation_id).all()
-
-    @classmethod
-    def find_by_rec_id_and_product_id(cls, recommendation_id, product_id):
-        """ Find all Recommendation Details by Recommendation Id and Product Id """
-        return (cls.query
-                .filter_by(rec_id=recommendation_id)
-                .filter_by(rec_product_id=product_id)).first()
+                .filter(cls.rec_type.has(RecommendationType.id == rec_type.id))
+                .filter(cls.rec_type.has(RecommendationType.is_active == True))).all()
 
 #################################################################################
 #  E L E P H A N T S Q L   D A T A B A S E   C O N N E C T I O N   M E T H O D S
@@ -302,6 +233,6 @@ def init_db(app):
 
 def seed_db():
     logging.info("Seeding database tables")
-    RecommendationType(Name='up-sell').save()
-    RecommendationType(Name='accessory').save()
-    RecommendationType(Name='cross-sell').save()
+    RecommendationType(Name='up-sell', query='category=values').save()
+    RecommendationType(Name='accessory', query='category=values').save()
+    RecommendationType(Name='cross-sell', query='category=values').save()
