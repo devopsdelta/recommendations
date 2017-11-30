@@ -106,13 +106,13 @@ def manage_recommendations():
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
     """ Returns all of the Recommendations """
-    type_name = request.args.get('rec_type_id')
+    type_name = request.args.get('type')
     product_id = request.args.get('product_id')
     results = []
     rec_type = None
 
     if type_name:
-        rec_type = RecommendationType.find_by_id(type_name)
+        rec_type = RecommendationType.find_by_name(type_name)
 
         if not rec_type:
             raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
@@ -194,7 +194,6 @@ def create_recommendations():
         # rec.recommendations.append(rec_detail2)
         # rec.recommendations.append(rec_detail3)
     rec.save()
-    print rec
 
     message = rec.serialize()
     location_url = url_for('get_recommendations', recommendation_id=rec.id, _external=True)
@@ -238,7 +237,6 @@ def delete_recommendations(recommendation_id):
     This endpoint will delete a Recommendation based the id specified in the path
     """
     recommendation = Recommendation.find_by_id(recommendation_id)
-    print recommendation
 
     if not recommendation:
         raise NotFound("Recommendation with id '{}' was not found.".format(recommendation_id))

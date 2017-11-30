@@ -46,8 +46,6 @@ from flask_sqlalchemy import Model, SQLAlchemy
 from psycopg2 import OperationalError
 from connection import get_database_uri
 
-LOCAL_HOST_URI = u'postgres://recommendations:password@localhost:5432/recommendations'
-
 """ Base DB Model """
 class BaseModel(Model):
     __abstract__ = True
@@ -111,7 +109,6 @@ class RecommendationType(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(40), unique=True, nullable=False)
     is_active = Column(Boolean, nullable=False)
-    # TODO: Store the query that will be used to call the Product service
     product_query = Column(String(255), nullable=False)
     # Category="originalproductCategory", Price > current Product Price + 1
 
@@ -134,7 +131,7 @@ class RecommendationType(db.Model):
     def find_by_name(cls, rec_name):
         """ Find a Recommendation Type By Name """
         return (cls.query.filter_by(name=str(rec_name.lower()))
-                .filter(cls.rec_type.has(rec_type.is_active == True))).first()
+                .filter_by(is_active=True)).first()
 
 # PK | PRODUCT_ID   | TYPE
 # 1  | 2 (Converse) | 1 (up-sell)
@@ -145,9 +142,9 @@ class Recommendation(db.Model):
     """ Class that represents a Recommendation """
     # PK | Product Id | Type Id | Recommendation Prod Id | Weight
     # ------------------------------------------------------------
-    # 1  | 23         | 1       |32                     | .6
-    # 2  |23          | 2       |34                     | .6
-    # 3  |33          | 1       | 45                    | .6
+    # 1  | 23         | 1       | 32                    | .6
+    # 2  | 23         | 2       | 34                    | .6
+    # 3  | 33         | 1       | 45                    | .6
 
 
     __tablename__ = 'recommendation'
@@ -158,9 +155,6 @@ class Recommendation(db.Model):
     weight = Column(Float, nullable=False)
 
     rec_type = relationship('RecommendationType')
-    # recommendations = relationship('RecommendationDetail', backref="recommendation")
-
-    # UniqueConstraint('product_id', 'rec_type_id', name='uix_product_id_type_id')
 
     def __repr__(self):
         return '{ "id": %s, "product_id": %s, "rec_type_id": %s, "rec_product_id": %s, "weight": %s}' % (self.id, self.product_id, self.rec_type_id, self.rec_product_id, self.weight)

@@ -100,14 +100,14 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_query_recommendation_list_by_product(self):
         """ Query Recommendation By Product Id """
-        resp = self.app.get('/recommendations?product_id=10')
+        resp = self.app.get('/recommendations?product_id=23')
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(json.loads(resp.data)), 1)
 
     def test_query_recommendation_list_by_product_id_and_type_id(self):
         """ Query Recommendation By Product Id and Type """
-        resp = self.app.get('/recommendations?product_id=10&type=up-sell')
+        resp = self.app.get('/recommendations?product_id=23&type=up-sell')
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(json.loads(resp.data)), 1)
@@ -226,14 +226,14 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_get_query_with_unknown_type(self):
         """ Get a Recommendation that doesn't exist by type """
-        resp = self.app.get('/recommendations', query_string='rec_type_id=7')
+        resp = self.app.get('/recommendations', query_string='type=up')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_query_recommendation_when_no_data_exist(self):
         """ Get a Recommendation thats not found """
         db.drop_all()
         db.create_all()
-        resp = self.app.get('/recommendations', query_string='rec_type_id=1')
+        resp = self.app.get('/recommendations', query_string='type=up-sell')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_method_not_allowed(self):
@@ -245,7 +245,7 @@ class TestRecommendationServer(unittest.TestCase):
     def test_bad_data_request(self, bad_request_mock):
         """ Test a Bad Request error from Find By Type """
         bad_request_mock.side_effect = ValueError()
-        resp = self.app.get('/recommendations', query_string='rec_type_id=2&&product_id=32')
+        resp = self.app.get('/recommendations', query_string='type=up-sell&product_id=23')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_bad_post_request(self):
@@ -259,7 +259,7 @@ class TestRecommendationServer(unittest.TestCase):
     def test_search_bad_data(self, recommendation_find_mock):
         """ Test a search that returns bad data """
         recommendation_find_mock.return_value = 4
-        resp = self.app.get('/recommendations', query_string='rec_type_id=1&product_id=1')
+        resp = self.app.get('/recommendations', query_string='type=up-sell&product_id=23')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ######################################################################
