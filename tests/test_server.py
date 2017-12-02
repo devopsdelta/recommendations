@@ -117,12 +117,18 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.get('/recommendations/2')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-
         self.assertEqual(data['id'], 2)
         self.assertEqual(data['product_id'], 51)
         self.assertEqual(data['rec_type']['id'], 2)
         self.assertEqual(data['rec_product_id'], 50)
         self.assertEqual(data['weight'], 1.5)
+
+    #TODO:help determine how to test a view?
+    def test_rec_detail(self):
+        """ Get one Recommendation Detail """
+        resp = self.app.get('/recommendations/detail/1')
+        self.assertEqual(resp.status_code,status.HTTP_200_OK)
+
 
     def test_get_recommendation_not_found(self):
         """ Get a Recommendation thats not found """
@@ -178,6 +184,7 @@ class TestRecommendationServer(unittest.TestCase):
                        "rec_type_id": 2, \
                        "rec_product_id": 50, \
                        "weight": 1.5}
+
         data = json.dumps(rec_changes)
         resp = self.app.put('/recommendations/2', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
