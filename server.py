@@ -98,7 +98,20 @@ def docs():
 @app.route('/recommendations/manage')
 def manage_recommendations():
     """ Manage Recommendation View """
-    return render_template('recommendations.html'), status.HTTP_200_OK
+    return render_template('recommendations.html', name="Manage"), status.HTTP_200_OK
+
+@app.route('/recommendations/detail/<int:recommendation_id>')
+def rec_detail(recommendation_id):
+    """ Manage Recommendation Detail"""
+    rec = Recommendation.find_by_id(recommendation_id)
+    recJSON = rec.serialize()
+    return render_template('recommendation.html',
+                            detail_id = recJSON["id"],
+                            product_id=recJSON["product_id"] ,
+                            rec_type = recJSON["rec_type"]["name"],
+                            rec_product_id = recJSON["rec_product_id"],
+                            weight = recJSON["weight"],
+                            status = recJSON["rec_type"]["is_active"]),status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL RECOMMENDATIONS
@@ -142,13 +155,13 @@ def get_recommendations(recommendation_id):
     This endpoint will return a Recommendations based on it's id
     """
     recommendation = Recommendation.find_by_id(recommendation_id)
-
+    recJSON = ""
     if not recommendation:
         raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
+    else:
+        recJSON = recommendation.serialize()
 
     return make_response(jsonify(recommendation.serialize()), status.HTTP_200_OK)
-
-
 ######################################################################
 # ADD A NEW RECOMMENDATION
 ######################################################################
