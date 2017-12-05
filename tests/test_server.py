@@ -136,7 +136,7 @@ class TestRecommendationServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_deactivate_recommendation_type(self):
-        """ Deactivate a Recommendation """
+        """ Deactivate a Recommendation Type"""
         resp = self.app.get('/recommendations/2')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
@@ -150,8 +150,14 @@ class TestRecommendationServer(unittest.TestCase):
         data = json.loads(resp.data)
         self.assertEqual(data['rec_type']['is_active'], False)
 
+    def test_deactivate_recommendation_not_found(self):
+        """ Deactivate a Recommendation Type that is not found """
+
+        resp = self.app.put('/recommendations/deactivate/5', content_type='application/json')
+        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_activate_recommendation_type(self):
-        """ Activate a Recommendation """
+        """ Activate a Recommendation Type"""
         resp = self.app.get('/recommendations/3')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
@@ -164,6 +170,12 @@ class TestRecommendationServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(data['rec_type']['is_active'], True)
+
+    def test_activate_recommendation_not_found(self):
+        """ Activate a Recommendation Type that is not found """
+
+        resp = self.app.put('/recommendations/activate/5', content_type='application/json')
+        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_recommendation(self):
         """ Create a Recommendation """
