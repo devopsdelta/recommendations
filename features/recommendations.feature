@@ -5,13 +5,13 @@ Feature: The recommendations api service back-end
 
 Background:
     Given the following recommendations
-    #     | Detail_ID | Product_ID | Type_ID | Recommendation_Prod_ID | Weight | Dislike_Count | Is_Deleted |
-    #     | 1         | 123        | 1       | 32                     | .6     | 0             | Y          |
-    #     | 2         | 123        | 1       | 34                     | .6     | 0             | Y          |
-    #     | 3         | 123        | 1       | 45                     | .6     | 0             | Y          |
-    #     | 4         | 123        | 2       | 23                     | .6     | 0             | N          |
-    #     | 5         | 123        | 2       | 33                     | .6     | 1             | N          |
-    #     | 6         | 123        | 3       | 43                     | .6     | 0             | N          |
+    #     | Detail_ID | Product_ID | Type_ID | Recommendation_Prod_ID | Weight |
+    #     | 1         | 123        | 1       | 32                     | .6     |
+    #     | 2         | 123        | 1       | 34                     | .6     |
+    #     | 3         | 123        | 1       | 45                     | .6     |
+    #     | 4         | 123        | 2       | 23                     | .6     |
+    #     | 5         | 123        | 2       | 33                     | .6     |
+    #     | 6         | 123        | 3       | 43                     | .6     |
     # When I visit the "Home Page"
     # Then I should see "Recommendation Demo REST API Service" in the title
     # And I should not see "404 Not Found"

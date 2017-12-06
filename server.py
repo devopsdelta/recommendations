@@ -246,6 +246,46 @@ def delete_recommendations(recommendation_id):
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+#  ACTION 1: ACTIVATE A RECOMMENDATION TYPE
+######################################################################
+@app.route('/recommendations/activate/<int:type_id>', methods=['PUT'])
+def activate_recommendations(type_id):
+    """
+    Activate a Recommendation Type
+
+    This endpoint will activate a Recommendation type based the type specified in the path
+    """
+    rec_type = RecommendationType.find_by_id(type_id)
+
+    if not rec_type:
+        raise NotFound("Recommendations with type '{}' was not found.".format(type_id))
+
+    rec_type.is_active = True
+    rec_type.save()
+
+    return make_response('Recommendation Type {} is activated.\n'.format(type), status.HTTP_200_OK)
+
+######################################################################
+#  ACTION 2: DEACTIVATE A RECOMMENDATION TYPE
+######################################################################
+@app.route('/recommendations/deactivate/<int:type_id>', methods=['PUT'])
+def deactivate_recommendations(type_id):
+    """
+    Deactivate a Recommendation Type
+
+    This endpoint will deactivate a Recommendation type based the type specified in the path
+    """
+    rec_type = RecommendationType.find_by_id(type_id)
+
+    if not rec_type:
+        raise NotFound("Recommendations with type '{}' was not found.".format(type_id))
+
+    rec_type.is_active = False
+    rec_type.save()
+
+    return make_response('Recommendation Type {} is deactivated.\n'.format(type), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 def initialize_logging(log_level):
