@@ -5,7 +5,7 @@ Feature: The recommendations api service back-end
 
 Background:
     Given the following recommendations
-        | rec_id | product_id | type    | rec_product_id | weight | status |
+        | rec_id | product_id | type_id | rec_product_id | weight | status |
         | 1	     | 3512	      | up-sell | 6783	         | .52    | True   |
 
 Scenario: My server is running

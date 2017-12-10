@@ -10,16 +10,20 @@ import requests
 from behave import *
 import server
 import environment
+import models
 
 BASE_URL = getenv('BASE_URL', 'http://0.0.0.0:8081')
 
 @given(u'the following recommendations')
 def step_impl(context):
     """ Create Recommendations """
-    # for rows in context.table:
-        # model.create(name=row['name'], department=row['department']))
-    #TODO: MAKE THE CREATE
-    pass
+    ###NEED TO IMPORT MODELS###
+    for rows in context.table:
+        models.create(rec_id=row['rec_id'], product_id=row['product_id'],
+            type_id=row['type_id'], rec_product_id=row['rec_product_id'],
+            weigh=row['weight'], status=row['status'] )
+    # #TODO: MAKE THE CREATE
+    # pass
 
 @when(u'I visit the "Home Page"')
 def step_impl(context):
