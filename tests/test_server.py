@@ -123,6 +123,10 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.get('/recommendations/detail/1')
         self.assertEqual(resp.status_code,status.HTTP_200_OK)
 
+    def test_rec_delete_recommendations(self):
+        """ Get one Recommendation Detail """
+        resp = self.app.get('/recommendations/delete/2')
+        self.assertEqual(resp.status_code,status.HTTP_200_OK)
 
     def test_get_recommendation_not_found(self):
         """ Get a Recommendation thats not found """
