@@ -7,7 +7,7 @@ Steps file for recommendation.feature
 import environment
 import json
 import requests
-from app import server
+import app.server
 from behave import *
 from os import getenv
 from selenium import webdriver
@@ -16,24 +16,24 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 BASE_URL = getenv('BASE_URL', 'http://0.0.0.0:8081')
-WAIT_SECONDS = 15
+WAIT_SECONDS = 10
 @given(u'the following recommendations')
 def step_impl(context):
     """ Create Recommendations """
     headers = {'Content-Type': 'application/json'}
     create_url = context.base_url + '/recommendations'
     for row in context.table:
-        recommendations = { 
-        "rec_id": row['rec_id'], 
-        "product_id": row['product_id'], 
-        "rec_type_id": row['rec_type_id'], 
-        "rec_product_id": row['rec_product_id'], 
+        recommendations = {
+        "rec_id": row['rec_id'],
+        "product_id": row['product_id'],
+        "rec_type_id": row['rec_type_id'],
+        "rec_product_id": row['rec_product_id'],
         "weight": row['weight']
         }
         payload = json.dumps(recommendations)
         context.resp = requests.post(create_url, data=payload, headers=headers)
         assert (context.resp.status_code==201)
-   
+
 
 @when(u'I visit the "Home Page"')
 def step_impl(context):
@@ -52,48 +52,16 @@ def step_impl(context):
     assert context.resp.status_code !=404
 
 
+@when(u'I visit the "{pagename}" page for recommendation "{path}" "{message}"')
+def step_impl(context,pagename,path,message):
+    context.driver.get(context.base_url+"/recommendations/"+path+"/"+message)
 
-@when(u'I visit the "Recommendation Details" page for recommendation detail "{message}"')
-def step_impl(context,message):
-    context.driver.get(context.base_url+"/recommendations/detail/{message}")
-
-@then(u'I will see a "rec_id" with "1" in my results')
-def step_impl(context):
+@then(u'I will see a "{key}" with "{value}" in my results')
+def step_impl(context,key,value):
     context.driver.get(context.base_url+"/recommendations/detail/1")
-    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_id')))
-    assert found.text == '1'
-    assert found.text != 'batman'
     context.driver.save_screenshot('GetTest.png')
-
-@then(u'I will see a "product_id" with "45" in my results')
-def step_impl(context):
-    context.driver.get(context.base_url+"/recommendations/detail/1")
-    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'product_id')))
-    assert found.text == '45'
-    assert found.text != 'batman'
-    context.driver.save_screenshot('GetTest.png')
-
-@then(u'I will see a "rec_type_id" with "2" in my results')
-def step_impl(context):
-    context.driver.get(context.base_url+"/recommendations/detail/1")
-    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_type_id')))
-    assert found.text == '2'
-    assert found.text != 'batman'
-    context.driver.save_screenshot('GetTest.png')
-
-@then(u'I will see a "rec_product_id" with "51" in my results')
-def step_impl(context):
-    context.driver.get(context.base_url+"/recommendations/detail/1")
-    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_product_id')))
-    assert found.text == '51'
-    assert found.text != 'batman'
-    context.driver.save_screenshot('GetTest.png')
-
-@then(u'I will see a "weight" with "0.2" in my results')
-def step_impl(context):
-    context.driver.get(context.base_url+"/recommendations/detail/1")
-    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'weight')))
-    assert found.text == '0.2'
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, key)))
+    assert found.text == value
     assert found.text != 'batman'
     context.driver.save_screenshot('GetTest.png')
 
@@ -106,4 +74,8 @@ def step_impl(context):
     except Exception:
         pass
 
-
+@then(u'I will see that Recommendation ID "{id_numb}" was deleted')
+def step_impl(context,id_numb):
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'was_deleted')))
+    assert found.text == "Recommendation ID "+id_numb+" was deleted"
+    context.driver.save_screenshot('GetTest.png')
