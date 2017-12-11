@@ -60,7 +60,7 @@ def step_impl(context,message):
 
 @then(u'I will see a "rec_id" with "1" in my results')
 def step_impl(context):
-    context.driver.get("http://0.0.0.0:8081/recommendations/detail/1")
+    context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_id')))
     assert found.text == '1'
     assert found.text != 'batman'
@@ -68,7 +68,7 @@ def step_impl(context):
 
 @then(u'I will see a "product_id" with "45" in my results')
 def step_impl(context):
-    context.driver.get("http://0.0.0.0:8081/recommendations/detail/1")
+    context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'product_id')))
     assert found.text == '45'
     assert found.text != 'batman'
@@ -76,7 +76,7 @@ def step_impl(context):
 
 @then(u'I will see a "rec_type_id" with "2" in my results')
 def step_impl(context):
-    context.driver.get("http://0.0.0.0:8081/recommendations/detail/1")
+    context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_type_id')))
     assert found.text == '2'
     assert found.text != 'batman'
@@ -84,7 +84,7 @@ def step_impl(context):
 
 @then(u'I will see a "rec_product_id" with "51" in my results')
 def step_impl(context):
-    context.driver.get("http://0.0.0.0:8081/recommendations/detail/1")
+    context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_product_id')))
     assert found.text == '51'
     assert found.text != 'batman'
@@ -92,7 +92,7 @@ def step_impl(context):
 
 @then(u'I will see a "weight" with "0.2" in my results')
 def step_impl(context):
-    context.driver.get("http://0.0.0.0:8081/recommendations/detail/1")
+    context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'weight')))
     assert found.text == '0.2'
     assert found.text != 'batman'
@@ -101,7 +101,7 @@ def step_impl(context):
 #had trouble getting this to raise TimeOutException
 @then(u'I should not see "rof-riders" in my results')
 def step_impl(context):
-    context.driver.get("http://0.0.0.0:8081/recommendations/detail/1")
+    context.driver.get(context.base_url+"/recommendations/detail/1")
     try:
         found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rof-riders')))
     except Exception:
