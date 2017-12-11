@@ -1,6 +1,5 @@
 import unittest
-import sys
-from engine import Engine
+from app.engine import Engine
 
 class EngineTestCase(unittest.TestCase):
     def setUp(self):
