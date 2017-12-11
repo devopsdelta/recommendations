@@ -19,6 +19,7 @@ from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
 from models import Recommendation, RecommendationType, init_db, DataValidationError
 from engine import Engine
+import connection
 from . import app
 
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
@@ -116,6 +117,21 @@ def rec_detail(recommendation_id):
                             weight = recJSON["weight"],
                             status = recJSON["rec_type"]["is_active"]),status.HTTP_200_OK
 
+
+@app.route('/recommendations/delete/<int:recommendation_id>')
+def rec_delete_recommendations(recommendation_id):
+    """
+    Delete a Recommendation
+
+    This endpoint will delete a Recommendation based the id specified in the path
+    """
+    recommendation = Recommendation.find_by_id(recommendation_id)
+
+    if not recommendation:
+        return render_template('delete.html',item_deleted=recommendation_id)
+    
+    recommendation.delete()
+    return render_template('delete.html',item_deleted=recommendation_id)
 ######################################################################
 # LIST ALL RECOMMENDATIONS
 ######################################################################
