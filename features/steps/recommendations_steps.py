@@ -10,30 +10,31 @@ import requests
 from behave import *
 import server
 import environment
+from compare import expect, ensure
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 BASE_URL = getenv('BASE_URL', 'http://0.0.0.0:8081')
-WAIT_SECONDS = 15
+WAIT_SECONDS = 10
 @given(u'the following recommendations')
 def step_impl(context):
     """ Create Recommendations """
     headers = {'Content-Type': 'application/json'}
     create_url = context.base_url + '/recommendations'
     for row in context.table:
-        recommendations = { 
-        "rec_id": row['rec_id'], 
-        "product_id": row['product_id'], 
-        "rec_type_id": row['rec_type_id'], 
-        "rec_product_id": row['rec_product_id'], 
+        recommendations = {
+        "rec_id": row['rec_id'],
+        "product_id": row['product_id'],
+        "rec_type_id": row['rec_type_id'],
+        "rec_product_id": row['rec_product_id'],
         "weight": row['weight']
         }
         payload = json.dumps(recommendations)
         context.resp = requests.post(create_url, data=payload, headers=headers)
         assert (context.resp.status_code==201)
-   
+
 
 @when(u'I visit the "Home Page"')
 def step_impl(context):
@@ -106,4 +107,24 @@ def step_impl(context):
     except Exception:
         pass
 
+@when(u'I visit the "Recommendation Details" page of all recommendations')
+def step_impl(context):
+    context.driver.get(context.base_url+"/recommendations/list")
 
+@then(u'I should see "{message}" in the results')
+def step_impl(context, message):
+    context.driver.get(context.base_url+"/recommendations/list")
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_result'),
+            message
+        )
+    )
+    expect(found).to_be(True)
+
+@then(u'I should not see "{message}" in the results')
+def step_impl(context, message):
+    context.driver.get(context.base_url+"/recommendations/list")
+    element = context.driver.find_element_by_id('search_result')
+    error_msg = "I should not see '%s' in '%s'" % (message, element.text)
+    ensure(message in element.text, False, error_msg)

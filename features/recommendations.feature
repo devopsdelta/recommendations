@@ -6,8 +6,10 @@ Feature: The recommendations api service back-end
 Background:
     Given the following recommendations
         | rec_id | product_id | rec_type_id | rec_product_id | weight |
-        | 1	     | 45	      | 2           | 51	         | 0.2    | 
-        
+        | 1	     | 45	        | 2           | 51	           | 0.2    |
+        | 2      | 567        | 1           | 45             | .6     |
+        | 3      | 23         | 3           | 23             | .6     |
+
 Scenario: My server is running
      When I visit the "Home Page"
      Then I should see "Recommendation" in the title
@@ -22,14 +24,13 @@ Scenario: Get a recommendation
     And I will see a "weight" with "0.2" in my results
     And I should not see "rof-riders" in my results
 
+Scenario: List all recommendations
+    When I visit the "Recommendation Details" page of all recommendations
+    Then I should see "45" in the results
+    And I should see "23" in the results
+    And I should see "567" in the results
+    And I should not see "100" in the results
 
- # Scenario: List all pets
- #     When I visit the "Home Page"
- #     And I press the "Search" button
- #     Then I should see "fido" in the results
- #     And I should see "kitty" in the results
- #     And I should see "leo" in the results
- #
  # Scenario: List all dogs
  #     When I visit the "Home Page"
  #     And I set the "Category" to "dog"

@@ -113,6 +113,13 @@ def rec_detail(recommendation_id):
                             weight = recJSON["weight"],
                             status = recJSON["rec_type"]["is_active"]),status.HTTP_200_OK
 
+@app.route('/recommendations/list')
+def list_rec():
+    """ Manage Recommendation Detail"""
+    recs = Recommendation.all()
+    results = [rec.serialize() for rec in recs if rec is not None]
+    return render_template('list.html', result=results),status.HTTP_200_OK
+
 ######################################################################
 # LIST ALL RECOMMENDATIONS
 ######################################################################
