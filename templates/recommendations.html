@@ -6,14 +6,12 @@
   {{ super() }}
 {% endblock %}
 {% block content %}
-
   <h1>Recommendations</h1>
   <div class="row">
     <div class="col-md-12">
       <div class="box box-default">
         <div class="box-header with-border">
           <h3 class="box-title">Create a Recommendation</h3>
-
           <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
             <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
@@ -46,7 +44,6 @@
       </div>
     </div>
   </div>
-
    <div class="row">
      <div class="col-md-12">
        <div class="box box-default">
@@ -75,12 +72,15 @@
                    </thead>
                    <tbody>
                      <tr role="row" class="odd">
-                       <td class="sorting_1">1</td>
-                       <td>3512</td>
-                       <td>up-sell</td>
-                       <td>6783</td>
-                       <td>.52</td>
-                       <td><a href="#" alt="Edit">Edit</a></td>
+                     <!-- review macro for inserting ids into link when building list implementation -->
+                     <!-- <td class="sorting_1"><a href="/recommendations/detail/{recommendation_id}">1</a></td> -->
+                     <!--  -->
+                        <td class="sorting_1"><a href="/recommendations/detail/1">1</a></td>
+                        <td>3512</td>
+                        <td>up-sell</td>
+                        <td>6783</td>
+                        <td>.52</td>
+                        <td><a href="#" alt="Edit">Edit</a></td>
                      </tr>
                      <tr role="row" class="even">
                        <td class="sorting_1">2</td>
@@ -91,16 +91,6 @@
                        <td><a href="#" alt="Edit">Edit</a></td>
                      </tr>
                    </tbody>
-                   <tfoot>
-                     <tr>
-                       <th rowspan="1" colspan="1">Rec Id</th>
-                       <th rowspan="1" colspan="1">Product Id</th>
-                       <th rowspan="1" colspan="1">Type</th>
-                       <th rowspan="1" colspan="1">Rec Product Id</th>
-                       <th rowspan="1" colspan="1">Weight</th>
-                       <th rowspan="1" colspan="1">&nbsp;</th>
-                     </tr>
-                   </tfoot>
                  </table>
                </div>
              </div>
@@ -109,5 +99,12 @@
        </div>
      </div>
    </div>
-
+</div>
+<!-- /.row -->
+</div>
+<!-- /.box-body -->
+</div>
+</div>
+</div>
+</div>
 {% endblock %}

@@ -4,8 +4,8 @@ Environment for Behave Testing
 import os
 from behave import *
 from selenium import webdriver
-
-BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
+os.environ['TEST'] = 'True'
+BASE_URL = os.getenv('BASE_URL', 'http://0.0.0.0:8081')
 
 def before_all(context):
     """ Executed once before all tests """

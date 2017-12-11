@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}
+  Manage Recommendations
+{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+
+  <h1>Recommendation</h1>
+   <div class="row">
+     <div class="col-md-12">
+       <div class="box box-default">
+         <div class="box-header with-border">
+           <h3 class="box-title">Recommendation Details</h3>
+
+           <div class="box-tools pull-right">
+             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+             <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+           </div>
+         </div>
+         <!-- /.box-header -->
+         <div class="box-body">
+             <div class="row">
+               <div class="col-md-12">
+                 <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                   <thead>
+                     <tr role="row">
+                       <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 240.8px;" aria-sort="ascending" aria-label="Recommendation Id: activate to sort column descending">Rec Id</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 303.6px;" aria-label="Product Id: activate to sort column ascending">Product Id</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 259.833px;" aria-label="Type: activate to sort column ascending">Rec Type Id</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 208.433px;" aria-label="Recommended Product Id: activate to sort column ascending">Rec Product Id</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 152.333px;" aria-label="Weight: activate to sort column ascending">Weight</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <tr role="row" class="odd">
+                       <td id="rec_id" class="sorting_1">{{detail_id}}</td>
+                       <td id="product_id">{{product_id}}</td>
+                       <td id="rec_type_id">{{rec_type}}</td>
+                       <td id="rec_product_id">{{rec_product_id}}</td>
+                       <td id="weight"> {{weight}}</td>
+                     </tr>
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+         </div>
+         <!-- /.box-body -->
+       </div>
+     </div>
+   </div>
+
+{% endblock %}
