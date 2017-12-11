@@ -1,4 +1,5 @@
 import unittest
+import sys
 from engine import Engine
 
 class EngineTestCase(unittest.TestCase):
@@ -27,7 +28,7 @@ class EngineTestCase(unittest.TestCase):
     def test_nothingToParse(self):
         """Testing Nothing to Parse"""
         self.assertEquals(self.rec_engine_1.parseMetaData(""), "Missing metadata for one or both products!" )
-    
+
     def test_parsingInvalidJSON(self):
         """Testing Parsing Invalid JSON"""
         self.assertRaises(Exception, self.rec_engine_1.parseMetaData('"id":"1","name":"socks","adf":"footwear"4.50"}'))
@@ -42,12 +43,11 @@ class EngineTestCase(unittest.TestCase):
 
     def test_getWeight(self):
         """Testing Correct Weights"""
-        #upsell algo test          
-        self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_1),2) 
-        self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_2),1) 
+        #upsell algo test
+        self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_1),2)
+        self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_2),1)
         self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_3),1)
         self.assertEquals(self.rec_engine_1.getWeight(self.other_prod_4),0)
 
 if __name__ == '__main__':
     unittest.main()
-

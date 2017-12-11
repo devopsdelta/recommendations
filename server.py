@@ -108,7 +108,7 @@ def rec_detail(recommendation_id):
     return render_template('recommendation.html',
                             detail_id = recJSON["id"],
                             product_id=recJSON["product_id"] ,
-                            rec_type = recJSON["rec_type"]["name"],
+                            rec_type = recJSON["rec_type"]["id"],
                             rec_product_id = recJSON["rec_product_id"],
                             weight = recJSON["weight"],
                             status = recJSON["rec_type"]["is_active"]),status.HTTP_200_OK

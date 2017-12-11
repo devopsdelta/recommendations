@@ -5,8 +5,8 @@ Feature: The recommendations api service back-end
 
 Background:
     Given the following recommendations
-        | rec_id | product_id | type_id | rec_product_id | weight | status |
-        | 1	     | 3512	      | up-sell | 6783	         | .52    | True   |
+        | rec_id | product_id | rec_type_id | rec_product_id | weight |
+        | 1	     | 45	      | 2           | 51	         | 0.2    | 
 
 Scenario: My server is running
      When I visit the "Home Page"
@@ -15,10 +15,11 @@ Scenario: My server is running
 
 Scenario: Get a recommendation
     When I visit the "Recommendation Details" page for recommendation detail "1"
-    Then I will see a "product_id" with "3512" in my results
-    And I will see a "type_id" with "up-sell" in my results
-    And I will see a "rec_product_id" with "6783" in my results
-    And I will see a "weight" with ".52" in my results
+    Then I will see a "rec_id" with "1" in my results
+    And I will see a "product_id" with "45" in my results
+    And I will see a "rec_type_id" with "2" in my results
+    And I will see a "rec_product_id" with "51" in my results
+    And I will see a "weight" with "0.2" in my results
     And I should not see "rof-riders" in my results
 
 
