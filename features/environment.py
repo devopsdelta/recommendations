@@ -4,6 +4,7 @@ Environment for Behave Testing
 import os
 from behave import *
 from selenium import webdriver
+
 os.environ['TEST'] = 'True'
 BASE_URL = os.getenv('BASE_URL', 'http://0.0.0.0:8081')
 
