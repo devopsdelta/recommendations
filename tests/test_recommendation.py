@@ -3,15 +3,15 @@
 # coverage report -m
 
 """ Test cases for Recommendation Model """
+import json
 import os
 import unittest
-import json
+from app.connection import get_database_uri
 from psycopg2 import OperationalError
 from mock import patch
-from models import Recommendation, RecommendationType
-from models import init_db, db, DataValidationError
+from app.models import Recommendation, RecommendationType
+from app.models import init_db, db, DataValidationError
 from flask import Flask, jsonify
-import connection
 
 #LOCAL_HOST_URI = connection.get_database_uri() #'postgres://recommendations:password@localhost:5433/recommendations'
 os.environ['TEST'] = 'True'
@@ -19,7 +19,7 @@ os.environ['TEST'] = 'True'
 VCAP_SERVICES = {
     'elephantsql': [
         {'credentials': {
-            'uri': connection.get_database_uri(),
+            'uri': get_database_uri(),
             'max_conns': '5'
             }
         }
@@ -257,14 +257,16 @@ class TestRecommendations(unittest.TestCase):
         test_app = Flask(__name__)
         test_app.config["SQLALCHEMY_DATABASE_URI"] = 'postgres://recommendations:password@localhost:9999/recommendations'
         test_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        #test_app.app_context().push()
         self.assertRaises(OperationalError, init_db, test_app)
 
-    @patch('connection.get_database_uri')
+    @patch('app.connection.get_database_uri')
     def test_passing_bad_connection_string(self, bad_database_creds):
         """ Pass in a bad connection string """
         test_app = Flask(__name__)
         test_app.config["SQLALCHEMY_DATABASE_URI"] = "Bad Connection String"
         test_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        #test_app.app_context().push()
         self.assertRaises(OperationalError, init_db, test_app)
 
     @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
@@ -276,7 +278,7 @@ class TestRecommendations(unittest.TestCase):
         init_db(test_app)
         self.assertIsNotNone(db)
 
-    @patch('models.db.session.commit')
+    @patch('app.models.db.session.commit')
     def test_db_error_on_save(self, db_error_mock):
         """ Test Rollback on save """
         current_rec_count = len(Recommendation.all())

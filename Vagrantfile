@@ -105,7 +105,7 @@ Vagrant.configure("2") do |config|
 
   # Add PostgreSQL docker container
   config.vm.provision "docker" do |d|
-    d.build_image "/vagrant",
+    d.build_image "/vagrant/docker",
       args: "-t postgres"
     d.run "postgres",
       args: "-d --name postgres -p 5432:5432 -v /var/lib/postgresql/data:/var/lib/postgresql/data"

@@ -19,9 +19,7 @@ from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
 from models import Recommendation, RecommendationType, init_db, DataValidationError
 from engine import Engine
-# Create Flask application
-app = Flask(__name__)
-app.config.from_object('config')
+from . import app
 
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '8081')
@@ -31,6 +29,11 @@ def static_include(filename):
     fullpath = os.path.join(app.static_folder, filename)
     with open(fullpath, 'r') as f:
         return f.read()
+
+@app.before_first_request
+def initialize_db():
+    """ Initialize the model """
+    init_db(app)
 
 ######################################################################
 # Error Handlers
@@ -48,7 +51,7 @@ def bad_request(error):
     return jsonify(status=400, error='Bad Request', message=message), 400
 
 @app.errorhandler(ValueError)
-def bad_request(error):
+def bad_request_value_error(error):
     """ Handles bad reuests with 400_BAD_REQUEST """
     message = error.message or str(error)
     app.logger.info(message)
@@ -211,6 +214,7 @@ def create_recommendations():
     message = rec.serialize()
     location_url = url_for('get_recommendations', recommendation_id=rec.id, _external=True)
 
+
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {
                              'Location': location_url
@@ -301,7 +305,7 @@ def deactivate_recommendations(type_id):
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-def initialize_logging(log_level):
+def initialize_logging(log_level=logging.INFO):
     """ Initialized the default logging to STDOUT """
     if not app.debug:
         print 'Setting up logging...'
@@ -325,15 +329,3 @@ def initialize_logging(log_level):
         app.logger.addHandler(handler)
         app.logger.setLevel(log_level)
         app.logger.info('Logging handler established')
-
-def initialize_db():
-    init_db(app)
-
-######################################################################
-#   M A I N
-######################################################################
-if __name__ == "__main__":
-    print "Recommendation Service Starting..."
-    initialize_logging(logging.INFO)
-    initialize_db()
-    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG, use_reloader=False)

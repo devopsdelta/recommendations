@@ -1,6 +1,6 @@
 import os
 import logging
-from connection import get_database_uri
+from app.connection import get_database_uri
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

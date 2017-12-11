@@ -4,12 +4,12 @@ Recommendation Steps
 Steps file for recommendation.feature
 """
 
-from os import getenv
+import environment
 import json
 import requests
+from app import server
 from behave import *
-import server
-import environment
+from os import getenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait

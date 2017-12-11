@@ -3,17 +3,17 @@
 # coverage report -m
 
 """ Test cases for the Recommendation Service """
-import os
-import logging
-import unittest
 import json
-from mock import MagicMock, patch
-from flask_api import status    # HTTP Status Codes
-import server
+import logging
 import mock
-from models import db, init_db
-from models import Recommendation, RecommendationType
-from connection import get_database_uri
+import os
+import unittest
+from app import server
+from app.connection import get_database_uri
+from app.models import db, init_db
+from app.models import Recommendation, RecommendationType
+from flask_api import status    # HTTP Status Codes
+from mock import MagicMock, patch
 
 os.environ['TEST'] = 'True'
 
@@ -23,16 +23,13 @@ os.environ['TEST'] = 'True'
 class TestRecommendationServer(unittest.TestCase):
     """ Recommendation Server Tests """
 
-    @classmethod
-    def setUpClass(cls):
-        """ Run once before all tests """
-        server.app.debug = False
-        server.initialize_logging(logging.INFO)
-
     def setUp(self):
         """ Runs before each test """
-        server.initialize_db()
 
+        self.app = server.app.test_client()
+        server.initialize_logging(logging.ERROR)
+        server.initialize_db()
+        
         data = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
         rec = Recommendation()
         rec.deserialize(data)
@@ -52,8 +49,6 @@ class TestRecommendationServer(unittest.TestCase):
         rec = Recommendation()
         rec.deserialize(data)
         rec.save()
-
-        self.app = server.app.test_client()
 
     def tearDown(self):
         """ Runs after each test """
@@ -289,7 +284,7 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.post('/recommendations/0')
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @patch('server.Recommendation.find_by_product_id_and_type')
+    @patch('app.server.Recommendation.find_by_product_id_and_type')
     def test_bad_data_request(self, bad_request_mock):
         """ Test a Bad Request error from Find By Type """
         bad_request_mock.side_effect = ValueError()
@@ -303,7 +298,7 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.post('/recommendations', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @mock.patch('server.Recommendation.find_by_product_id_and_type')
+    @mock.patch('app.server.Recommendation.find_by_product_id_and_type')
     def test_search_bad_data(self, recommendation_find_mock):
         """ Test a search that returns bad data """
         recommendation_find_mock.return_value = 4
