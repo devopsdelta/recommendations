@@ -7,7 +7,7 @@ Background:
     Given the following recommendations
         | rec_id | product_id | rec_type_id | rec_product_id | weight |
         | 1	     | 45	      | 2           | 51	         | 0.2    | 
-
+        
 Scenario: My server is running
      When I visit the "Home Page"
      Then I should see "Recommendation" in the title

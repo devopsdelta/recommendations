@@ -233,6 +233,6 @@ def init_db(app):
 
 def seed_db():
     logging.info("Seeding database tables")
-    RecommendationType(Name='up-sell', query='category=values').save()
-    RecommendationType(Name='accessory', query='category=values').save()
-    RecommendationType(Name='cross-sell', query='category=values').save()
+    RecommendationType(Name='up-sell', active=True, query='category=values').save()
+    RecommendationType(Name='accessory', active=True, query='category=values').save()
+    RecommendationType(Name='cross-sell', active=False, query='category=values').save()
