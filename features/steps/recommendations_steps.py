@@ -20,7 +20,6 @@ WAIT_SECONDS = 15
 @given(u'the following recommendations')
 def step_impl(context):
     """ Create Recommendations """
-    ###NEED TO IMPORT MODELS###
     headers = {'Content-Type': 'application/json'}
     create_url = context.base_url + '/recommendations'
     for row in context.table:
