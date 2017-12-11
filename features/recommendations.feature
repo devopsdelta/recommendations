@@ -6,21 +6,26 @@ Feature: The recommendations api service back-end
 Background:
     Given the following recommendations
         | rec_id | product_id | rec_type_id | rec_product_id | weight |
-        | 1	     | 45	      | 2           | 51	         | 0.2    | 
-        
+        | 1	     | 45	      | 2           | 51	         | 0.2    |
+        | 2	     | 47	      | 1           | 52	         | 0.3    |
+
 Scenario: My server is running
      When I visit the "Home Page"
      Then I should see "Recommendation" in the title
      And I should not see "404 Not Found"
 
 Scenario: Get a recommendation
-    When I visit the "Recommendation Details" page for recommendation detail "1"
+    When I visit the "Recommendation Details" page for recommendation "detail" "1"
     Then I will see a "rec_id" with "1" in my results
     And I will see a "product_id" with "45" in my results
     And I will see a "rec_type_id" with "2" in my results
     And I will see a "rec_product_id" with "51" in my results
     And I will see a "weight" with "0.2" in my results
     And I should not see "rof-riders" in my results
+
+Scenario: Delete a recommendation
+    When I visit the "Delete Recommendations" page for recommendation "delete" "2"
+    Then I will see that Recommendation ID "2" was deleted
 
 
  # Scenario: List all pets
