@@ -123,7 +123,6 @@ class TestRecommendationServer(unittest.TestCase):
         self.assertEqual(data['rec_product_id'], 50)
         self.assertEqual(data['weight'], 1.5)
 
-    #TODO:help determine how to test a view?
     def test_rec_detail(self):
         """ Get one Recommendation Detail """
         resp = self.app.get('/recommendations/detail/1')
