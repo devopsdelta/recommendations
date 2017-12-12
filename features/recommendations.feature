@@ -9,7 +9,7 @@ Background:
         | 1      | 29         | 2           | 51             | 0.2    |
         | 2      | 567        | 1           | 449            | .6     |
         | 3      | 23         | 3           | 33             | .6     |
-        
+
 Scenario: My server is running
      When I visit the "Home Page"
      Then I should see "Recommendation" in the title
@@ -33,11 +33,27 @@ Scenario: List all recommendations
 
 Scenario: List all up-sell recommendations
     When I visit the Recommendation Details page of filter recommendations by type "up-sell"
-    And I set the "Type" to "up-sell"
+    And I change the "Type" to "up-sell"
     And I press the "Search" button
     Then I should see "567" in the search_results
     And I should not see "29" in the search_results
     And I should not see "23" in the search_results
+
+Scenario: List all recommendations for product 29
+    When I visit the Recommendation Details page of filter recommendations by product "29"
+    And I enter the "Product" to "29"
+    And I click the "Search" button
+    Then I should see "29" in the search_result
+    And I should not see "567" in the search_result
+    And I should not see "23" in the search_result
+
+Scenario: List all accessory recommendations for product 29
+    When I visit the Recommendation Details page to filter recommendations by type "accessory" and product "29"
+    And I enter the "Product" to "29" and "Type" to "accessory"
+    And I pressed the "Search" button
+    Then I should see "29" in the result
+    And I should not see "567" in the result
+    And I should not see "23" in the result
 
  # Scenario: List all pets
  #     When I visit the "Home Page"

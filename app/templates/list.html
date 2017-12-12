@@ -23,7 +23,36 @@
          <div class="box-body">
              <div class="row">
                <div class="col-md-12">
-                 <span id="search_result"> {{result}} </span>
+                 <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                   <thead>
+                     <tr role="row">
+                       <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 240.8px;" aria-sort="ascending" aria-label="Recommendation Id: activate to sort column descending">Rec Id</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 303.6px;" aria-label="Product Id: activate to sort column ascending">Product Id</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 259.833px;" aria-label="Type: activate to sort column ascending">Type</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 208.433px;" aria-label="Recommended Product Id: activate to sort column ascending">Rec Product Id</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 152.333px;" aria-label="Weight: activate to sort column ascending">Weight</th>
+                       <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 152.333px;" aria-label="Status: activate to sort column ascending">&nbsp;</th>
+                     </tr>
+                   </thead>
+                   <tbody id="search_result">
+                     <!-- review macro for inserting ids into link when building list implementation -->
+                     <!-- <td class="sorting_1"><a href="/recommendations/detail/{recommendation_id}">1</a></td> -->
+                     <!--  -->
+                     {% for recommendation in result %}
+                     <tr role="row">
+                       <input type="hidden" value="{{ recommendation.id }}" />
+                        <td><a href="/recommendations/detail/{{ recommendation.id }}">{{ recommendation.id }}</a></td>
+                        <td>{{recommendation.product_id}}</td>
+                        <td>{{recommendation.rec_type.id}}</td>
+                        <td>{{recommendation.rec_product_id}}</td>
+                        <td>{{recommendation.weight}}</td>
+                        <td>
+                          <a href="/recommendations/edit/{{ recommendation.id }}" alt="Edit">Edit</a> | <a href="/recommendations/delete/{{ recommendation.id }}">Delete</a></td>
+                        </td>
+                     </tr>
+                    {% endfor %}
+                   </tbody>
+                 </table>
                </div>
              </div>
          </div>
