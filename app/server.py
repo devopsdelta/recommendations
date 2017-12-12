@@ -314,7 +314,7 @@ def deactivate_recommendations(type_id):
 ######################################################################
 def initialize_logging(log_level=logging.INFO):
     """ Initialized the default logging to STDOUT """
-    if not app.debug:
+    if app.debug:
         print 'Setting up logging...'
 
         # Set up default logging for submodules to use STDOUT

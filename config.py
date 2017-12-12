@@ -17,6 +17,7 @@ class Config(object):
     TESTING = False
     LOGGING_LEVEL = logging.INFO
     SECRET_KEY = 'secret-for-dev-only'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class ProductionConfig(Config):

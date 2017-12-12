@@ -11,7 +11,7 @@ APP_SETTING = os.getenv('APP_SETTING', 'DevelopmentConfig')
 
 # Create the Flask aoo
 app = Flask(__name__)
-app.config.from_object('config.%s' % APP_SETTING)
+app.config.from_object('config.%s' % str(APP_SETTING))
 
 # Service needs app so must be placed after app is created
 import connection
