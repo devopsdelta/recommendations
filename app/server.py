@@ -33,7 +33,7 @@ def static_include(filename):
 @app.before_first_request
 def initialize_db():
     """ Initialize the model """
-    init_db(app)
+    init_db()
 
 ######################################################################
 # Error Handlers
@@ -70,6 +70,13 @@ def method_not_supported(error):
     message = error.message or str(error)
     app.logger.info(message)
     return jsonify(status=405, error='Method not Allowed', message=message), 405
+
+@app.errorhandler(415)
+def mediatype_not_supported(error):
+    """ Handles unsuppoted media requests with 415_UNSUPPORTED_MEDIA_TYPE """
+    message = error.message or str(error)
+    app.logger.info(message)
+    return jsonify(status=415, error='Unsupported media type', message=message), 415
 
 @app.errorhandler(500)
 def internal_server_error(error):
