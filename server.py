@@ -131,9 +131,6 @@ def search_rec(type_name):
         recs = Recommendation.find_by_type(rec_type)
 
     results = [rec.serialize() for rec in recs if rec is not None]
-    print "Printing results"
-    print results
-    print "Before render_template"
     return render_template('query.html', result=results),status.HTTP_200_OK
 
 ######################################################################
