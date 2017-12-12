@@ -10,6 +10,7 @@ import requests
 from app import server
 from behave import *
 from os import getenv
+from compare import expect, ensure
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,6 +22,8 @@ WAIT_SECONDS = 15
 def step_impl(context):
     """ Create Recommendations """
     headers = {'Content-Type': 'application/json'}
+    context.resp = requests.delete(context.base_url + '/recommendations/reset', headers=headers)
+    expect(context.resp.status_code).to_equal(204)
     create_url = context.base_url + '/recommendations'
     for row in context.table:
         recommendations = { 
@@ -34,7 +37,6 @@ def step_impl(context):
         context.resp = requests.post(create_url, data=payload, headers=headers)
         assert (context.resp.status_code==201)
    
-
 @when(u'I visit the "Home Page"')
 def step_impl(context):
     """ Make a call to the base URL """
@@ -65,11 +67,11 @@ def step_impl(context):
     assert found.text != 'batman'
     context.driver.save_screenshot('GetTest.png')
 
-@then(u'I will see a "product_id" with "45" in my results')
+@then(u'I will see a "product_id" with "29" in my results')
 def step_impl(context):
     context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'product_id')))
-    assert found.text == '45'
+    assert found.text == '29'
     assert found.text != 'batman'
     context.driver.save_screenshot('GetTest.png')
 
@@ -105,5 +107,70 @@ def step_impl(context):
         found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rof-riders')))
     except Exception:
         pass
+
+#===============================================================================================
+# LIST ALL RECOMMENDATIONS
+#===============================================================================================
+
+@when(u'I visit the "Recommendation Details" page of all recommendations')
+def step_impl(context):
+    context.driver.get(context.base_url+"/recommendations/list")
+
+@then(u'I should see "{message}" in the results')
+def step_impl(context, message):
+    context.driver.get(context.base_url+"/recommendations/list")
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_result'),
+            message
+        )
+    )
+    expect(found).to_be(True)
+
+@then(u'I should not see "{message}" in the results')
+def step_impl(context, message):
+    context.driver.get(context.base_url+"/recommendations/list")
+    element = context.driver.find_element_by_id('search_result')
+    error_msg = "I should not see '%s' in '%s'" % (message, element.text)
+    ensure(message in element.text, False, error_msg)
+
+#===============================================================================================
+# SEARCH FOR RECOMMENDATIONS
+#===============================================================================================
+@when(u'I visit the Recommendation Details page of filter recommendations by type "{message}"')
+def step_impl(context, message):
+    context.driver.get(context.base_url+"/recommendations/query/type/{message}")
+
+@when(u'I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    context.driver.get(context.base_url+"/recommendations/query/type/up-sell")
+    element_id = element_name.lower() + '_id'
+    print (element_id)
+    element = context.driver.find_element_by_id(element_id)
+    element.send_keys(text_string)
+
+@when(u'I press the "{button}" button')
+def step_impl(context, button):
+    context.driver.get(context.base_url+"/recommendations/query/type/up-sell")
+    button_id = button.lower() + '-btn'
+    context.driver.find_element_by_id(button_id).click()
+
+@then(u'I should see "{message}" in the search_results')
+def step_impl(context, message):
+    context.driver.get(context.base_url+"/recommendations/query/type/up-sell")
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_result'),
+            message
+        )
+    )
+    expect(found).to_be(True)
+
+@then(u'I should not see "{message}" in the search_results')
+def step_impl(context, message):
+    context.driver.get(context.base_url+"/recommendations/query/type/up-sell")
+    element = context.driver.find_element_by_id('search_result')
+    error_msg = "I should not see '%s' in '%s'" % (message, element.text)
+    ensure(message in element.text, False, error_msg)
 
 

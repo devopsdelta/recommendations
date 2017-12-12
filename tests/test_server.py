@@ -107,6 +107,16 @@ class TestRecommendationServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(json.loads(resp.data)), 1)
 
+    def test_view_list_recommendations(self):
+        """ View List All Recommendations """
+        resp = self.app.get('/recommendations/list')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_view_query_recommendation_list_by_type(self):
+        """ View Query Recommendation By Type """
+        resp = self.app.get('/recommendations/query/type/up-sell')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_get_recommendation(self):
         """ Get one Recommendation """
         resp = self.app.get('/recommendations/2')
