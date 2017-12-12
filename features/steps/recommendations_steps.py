@@ -22,14 +22,9 @@ WAIT_SECONDS = 15
 def step_impl(context):
     """ Create Recommendations """
     headers = {'Content-Type': 'application/json'}
-    print (headers)
-    print ("Before delete")
     context.resp = requests.delete(context.base_url + '/recommendations/reset', headers=headers)
-    # print ("Before response")
     expect(context.resp.status_code).to_equal(204)
-    # print ("After delete")
     create_url = context.base_url + '/recommendations'
-    print (create_url)
     for row in context.table:
         recommendations = {
         "rec_id": row['rec_id'],

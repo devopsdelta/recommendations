@@ -341,7 +341,9 @@ def deactivate_recommendations(type_id):
 @app.route('/recommendations/reset', methods=['DELETE'])
 def recommendations_reset():
     """ Removes all recommendations from the database """
-    Recommendation.remove_all()
+    db.session.remove()
+    db.drop_all()
+    initialize_db()
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
