@@ -51,6 +51,7 @@ class TestRecommendations(unittest.TestCase):
         try:
             db.session.remove()
             db.drop_all()
+            db.session.close()
         except Exception as e:
             pass
 
