@@ -5,7 +5,7 @@ Start the Pet Service and initializes logging
 """
 
 import os
-from app import app, server
+from app import app, server, views
 
 # Pull options from environment
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')

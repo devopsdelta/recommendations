@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% set active_page = "docs" %}
+{% block title %}Recommendation Demo REST API Service{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block content %}
+    <iframe width="100%" height="100%" frameborder="0" src="/apidocs/" 
+            style="position:absolute; top: 50px; left: 50px"/>
+{% endblock %}

@@ -58,7 +58,7 @@ class TestRecommendations(unittest.TestCase):
         rec.save()
 
         self.assertTrue(rec != None)
-        self.assertEqual(Recommendation.count(), 1)
+        self.assertEquals(rec.id, 1)
 
     def test_update_a_recommendation(self):
         """ Update a Recommendation """
@@ -278,13 +278,11 @@ class TestRecommendations(unittest.TestCase):
     @patch('app.models.db.session.commit')
     def test_db_error_on_save(self, db_error_mock):
         """ Test Rollback on save """
-        current_rec_count = len(Recommendation.all())
+
         db_error_mock.side_effect = OperationalError()
         data = { 'product_id': 23, 'rec_type_id': "up-sell", 'rec_product_id': 45, 'weight': .5 }
         rec = Recommendation()
-        rec.deserialize(data)
-        new_rec_count = len(Recommendation.all())
-        self.assertEqual(current_rec_count, new_rec_count)
+        self.assertRaises(DataValidationError, rec.deserialize, data)
 
 ######################################################################
 #   M A I N

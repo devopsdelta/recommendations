@@ -3,8 +3,9 @@ Flask-API==0.6.9
 Flask-SQLAlchemy==2.3.1
 flask-restplus==0.10.1
 SQLAlchemy==1.1.5
-psycopg2>=2.5
+psycopg2>=2.7
 pylint
+Cerberus==1.1
 # Testing
 mock==2.0.0
 httpie==0.9.9
@@ -19,3 +20,4 @@ honcho==1.0.1
 behave==1.2.5
 selenium==3.3.1
 requests==2.13.0
+compare==0.2b0

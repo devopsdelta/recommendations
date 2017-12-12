@@ -1,8 +1,11 @@
 """
 Microservice module
 This module contains the microservice code for
-    service
+    engine
     models
+    server
+    swagger
+    views
 """
 import os
 from flask import Flask
@@ -17,3 +20,5 @@ app.config.from_object('config.%s' % str(APP_SETTING))
 import engine
 import models
 import server
+import swagger
+import views
