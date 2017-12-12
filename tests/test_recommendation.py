@@ -13,7 +13,6 @@ from app.models import Recommendation, RecommendationType
 #from app.models import init_db, db, DataValidationError, seed_db
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import time
 
 from app import app
 from app.models import db, DataValidationError, seed_db
@@ -36,7 +35,6 @@ class TestRecommendations(unittest.TestCase):
 
     def setUp(self):
         """ Creates a new database for the unit test to use """
-        app.config.from_object('config.TestingConfig')
         db.drop_all()
         db.create_all()
         seed_db()

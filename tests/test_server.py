@@ -15,8 +15,6 @@ from app.models import Recommendation, RecommendationType
 from flask_api import status    # HTTP Status Codes
 from mock import MagicMock, patch
 
-os.environ['TEST'] = 'True'
-
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
@@ -26,7 +24,6 @@ class TestRecommendationServer(unittest.TestCase):
     def setUp(self):
         """ Runs before each test """
         
-        server.app.config.from_object('config.TestingConfig')
         self.app = server.app.test_client()
         
         server.initialize_logging(logging.ERROR)
