@@ -120,6 +120,22 @@ def list_rec():
     results = [rec.serialize() for rec in recs if rec is not None]
     return render_template('list.html', result=results),status.HTTP_200_OK
 
+@app.route('/recommendations/query/type/<type_name>')
+def search_rec(type_name):
+    """ Manage Recommendation Detail"""
+    rec_type = RecommendationType.find_by_name(type_name)
+
+    if not rec_type:
+        raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
+    else:
+        recs = Recommendation.find_by_type(rec_type)
+
+    results = [rec.serialize() for rec in recs if rec is not None]
+    print "Printing results"
+    print results
+    print "Before render_template"
+    return render_template('query.html', result=results),status.HTTP_200_OK
+
 ######################################################################
 # LIST ALL RECOMMENDATIONS
 ######################################################################
