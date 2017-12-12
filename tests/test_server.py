@@ -52,7 +52,7 @@ class TestRecommendationServer(unittest.TestCase):
 
     def tearDown(self):
         """ Runs after each test """
-        db.session.remove()
+        db.session.close()
         db.drop_all()
 
     def test_index_view(self):

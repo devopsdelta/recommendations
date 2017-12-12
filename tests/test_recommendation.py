@@ -41,7 +41,7 @@ class TestRecommendations(unittest.TestCase):
     def tearDown(self):
         """ Ensures that the database is emptied for next unit test """
         try:
-            db.session.remove()
+            db.session.close()
             db.drop_all()
         except Exception as e:
             pass
