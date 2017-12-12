@@ -50,6 +50,7 @@ from app.connection import get_database_uri
 class BaseModel(Model):
     __abstract__ = True
 
+    @classmethod
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
