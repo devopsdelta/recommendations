@@ -1,6 +1,7 @@
 Flask==0.12.2
 Flask-API==0.6.9
 Flask-SQLAlchemy==2.3.1
+flask-restplus==0.10.1
 SQLAlchemy==1.1.5
 psycopg2>=2.5
 pylint
