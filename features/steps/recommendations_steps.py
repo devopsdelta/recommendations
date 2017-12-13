@@ -70,11 +70,11 @@ def step_impl(context):
     assert found.text != 'batman'
     context.driver.save_screenshot('line67.png')
 
-@then(u'I will see a "product_id" with "45" in my results')
+@then(u'I will see a "product_id" with "29" in my results')
 def step_impl(context):
     context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'product_id')))
-    assert found.text == '45'
+    assert found.text == '29'
     assert found.text != 'batman'
     context.driver.save_screenshot('GetTest.png')
 

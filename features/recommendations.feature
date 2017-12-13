@@ -18,7 +18,7 @@ Scenario: My server is running
 Scenario: Get a recommendation
     When I visit the "Recommendation Details" page for recommendation detail "1"
     Then I will see a "rec_id" with "1" in my results
-    And I will see a "product_id" with "45" in my results
+    And I will see a "product_id" with "29" in my results
     And I will see a "rec_type_id" with "2" in my results
     And I will see a "rec_product_id" with "51" in my results
     And I will see a "weight" with "0.2" in my results
