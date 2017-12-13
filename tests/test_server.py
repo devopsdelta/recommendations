@@ -14,6 +14,8 @@ from app.models import Recommendation, RecommendationType
 from flask_api import status    # HTTP Status Codes
 from mock import patch
 
+APP_SETTING = os.getenv('APP_SETTING', 'TestingConfig')
+
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
@@ -23,6 +25,7 @@ class TestRecommendationServer(unittest.TestCase):
     def setUp(self):
         """ Runs before each test """
         
+        server.app.config.from_object('config.%s' % str(APP_SETTING))
         self.app = server.app.test_client()
         server.initialize_logging()
         server.initialize_db()

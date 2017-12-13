@@ -16,6 +16,8 @@ from flask_sqlalchemy import SQLAlchemy
 from app import app
 from app.models import db, DataValidationError, seed_db, init_db
 
+APP_SETTING = os.getenv('APP_SETTING', 'TestingConfig')
+
 VCAP_SERVICES = {
     'elephantsql': [
         {'credentials': {
@@ -34,7 +36,7 @@ class TestRecommendations(unittest.TestCase):
 
     def setUp(self):
         """ Creates a new database for the unit test to use """
-        APP_SETTING = os.getenv('APP_SETTING', 'DevelopmentConfig')
+
         app.config.from_object('config.%s' % str(APP_SETTING))
         db.drop_all()
         db.create_all()

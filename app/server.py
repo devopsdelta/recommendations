@@ -142,10 +142,11 @@ def list_recommendations():
     else:
         recs = Recommendation.all()
 
-    results = [rec.serialize() for rec in recs if rec is not None]
-
-    return make_response(jsonify(results), status.HTTP_200_OK)
-
+    try:
+        results = [rec.serialize() for rec in recs if rec is not None]
+        return make_response(jsonify(results), status.HTTP_200_OK)
+    except Exception as e:
+        return internal_server_error(e)
 
 ######################################################################
 # RETRIEVE A RECOMMENDATION
@@ -307,26 +308,26 @@ def deactivate_recommendations(type_id):
 ######################################################################
 def initialize_logging():
     """ Initialized the default logging to STDOUT """
-    if not app.debug:
-        print 'Setting up logging...'
 
-        log_level = app.config['LOGGING_LEVEL']
-        # Set up default logging for submodules to use STDOUT
-        # datefmt='%m/%d/%Y %I:%M:%S %p'
-        fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
-        logging.basicConfig(stream=sys.stdout, level=log_level, format=fmt)
+    print 'Setting up logging...'
 
-        # Make a new log handler that uses STDOUT
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(fmt))
-        handler.setLevel(log_level)
+    log_level = app.config['LOGGING_LEVEL']
+    # Set up default logging for submodules to use STDOUT
+    # datefmt='%m/%d/%Y %I:%M:%S %p'
+    fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    logging.basicConfig(stream=sys.stdout, level=log_level, format=fmt)
 
-        # Remove the Flask default handlers and use our own
-        handler_list = list(app.logger.handlers)
+    # Make a new log handler that uses STDOUT
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter(fmt))
+    handler.setLevel(log_level)
 
-        for log_handler in handler_list:
-            app.logger.removeHandler(log_handler)
+    # Remove the Flask default handlers and use our own
+    handler_list = list(app.logger.handlers)
 
-        app.logger.addHandler(handler)
-        app.logger.setLevel(log_level)
-        app.logger.info('Logging handler established')
+    for log_handler in handler_list:
+        app.logger.removeHandler(log_handler)
+
+    app.logger.addHandler(handler)
+    app.logger.setLevel(log_level)
+    app.logger.info('Logging handler established')
