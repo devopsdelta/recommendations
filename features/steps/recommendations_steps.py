@@ -34,7 +34,6 @@ def step_impl(context):
         payload = json.dumps(recommendations)
 
         context.resp = requests.post(create_url, data=payload, headers=headers)
-        #assert (context.resp.status_code==201)
         expect(context.resp.status_code).to_equal(201)
    
 
@@ -65,7 +64,7 @@ def step_impl(context):
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_id')))
     assert found.text == '1'
     assert found.text != 'batman'
-    context.driver.save_screenshot('GetTest.png')
+    context.driver.save_screenshot('line67.png')
 
 @then(u'I will see a "product_id" with "45" in my results')
 def step_impl(context):

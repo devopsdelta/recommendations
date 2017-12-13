@@ -1,0 +1,41 @@
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Recommendations</h3>
+            <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+            </div>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="row">
+                            <label class="col-md-2" for="product_id_search">Product Id</label>
+                            <div class="col-md-2">
+                                <input type="text" id="product_id_search" class="form-control" />
+                            </div>
+                            <label class="col-md-3">Recommendation Type</label>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select class="form-control" id="rec_type_name">
+                                        <option value="">All</option>
+                                        <option value="up-sell">Up-Sell</option>
+                                        <option value="accessory">Accessory</option>
+                                        <option value="cross-sell">Cross-Sell</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="search_results">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+    </div>

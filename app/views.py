@@ -10,7 +10,7 @@ from models import Recommendation
 def index():
     """ Root URL response """
     return render_template('index.html', name='Recommendation Demo REST API Service',
-                   version='1.0'), status.HTTP_200_OK
+                           version='1.0'), status.HTTP_200_OK
 
 @app.route('/recommendations/metadata')
 def metadata():
@@ -20,7 +20,7 @@ def metadata():
 @app.route('/recommendations/manage')
 def manage_recommendations():
     """ Manage Recommendation View """
-    return render_template('recommendations.html', name="Manage"), status.HTTP_200_OK
+    return render_template('manage.html', name="Manage"), status.HTTP_200_OK
 
 @app.route('/recommendations/docs')
 def view_documentation():
@@ -31,8 +31,9 @@ def view_documentation():
 def rec_detail(recommendation_id):
     """ Manage Recommendation Detail"""
     rec = Recommendation.find_by_id(recommendation_id)
+    print rec
     recJSON = rec.serialize()
-    return render_template('recommendation.html',
+    return render_template('manage/detail.html',
                             detail_id = recJSON["id"],
                             product_id=recJSON["product_id"] ,
                             rec_type = recJSON["rec_type"]["id"],

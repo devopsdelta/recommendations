@@ -122,7 +122,7 @@ class RecommendationCollection(Resource):
 
         if type_name:
             rec_type = RecommendationType.find_by_name(type_name)
-
+            print rec_type
             if not rec_type:
                 raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
 
@@ -135,7 +135,6 @@ class RecommendationCollection(Resource):
         else:
             recs = Recommendation.all()
 
-        print "Type", type_name, "product", product_id, "Recs", recs
         results = [rec.serialize() for rec in recs if rec is not None]
 
         return results, status.HTTP_200_OK
