@@ -10,7 +10,7 @@ import requests
 from app import server
 from behave import *
 from os import getenv
-from compare import expect
+from compare import expect, ensure
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -22,20 +22,22 @@ WAIT_SECONDS = 15
 def step_impl(context):
     """ Create Recommendations """
     headers = {'Content-Type': 'application/json'}
+    context.resp = requests.delete(context.base_url + '/recommendations/reset', headers=headers)
+    expect(context.resp.status_code).to_equal(204)
     create_url = context.base_url + '/recommendations'
-    
+
     for row in context.table:
-        recommendations = { 
+        recommendations = {
         "product_id": int(row['product_id']),
         "rec_type_id": int(row['rec_type_id']),
-        "rec_product_id": int(row['rec_product_id']), 
+        "rec_product_id": int(row['rec_product_id']),
         "weight": float(row['weight'])
         }
         payload = json.dumps(recommendations)
 
         context.resp = requests.post(create_url, data=payload, headers=headers)
         expect(context.resp.status_code).to_equal(201)
-   
+
 
 @when(u'I visit the "Home Page"')
 def step_impl(context):
@@ -107,4 +109,45 @@ def step_impl(context):
     except Exception:
         pass
 
+#===============================================================================================
+# LIST ALL RECOMMENDATIONS
+#===============================================================================================
+@when(u'I visit the "Recommendation Details" page')
+def step_impl(context):
+    context.driver.get(context.base_url+"/recommendations/manage")
 
+@when(u'I press the "{button}" button')
+def step_impl(context, button):
+    button_id = button.lower() + '-btn'
+    context.driver.find_element_by_id(button_id).click()
+
+@then(u'I should see "{message}" in the search_results')
+def step_impl(context, message):
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_results'),
+            message
+        )
+    )
+    expect(found).to_be(True)
+
+@then(u'I should not see "{message}" in the search_results')
+def step_impl(context, message):
+    element = context.driver.find_element_by_id('search_results')
+    error_msg = "I should not see '%s' in '%s'" % (message, element.text)
+    ensure(message in element.text, False, error_msg)
+
+#===============================================================================================
+# SEARCH FOR RECOMMENDATIONS BY TYPE
+#===============================================================================================
+@when(u'I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    url = context.base_url+"/recommendations/manage?" + element_name.lower() + "=" + text_string.lower()
+    print (url)
+    context.driver.get(url)
+    print (element_name)
+    print (text_string)
+    element_id = 'rec_type_name'
+    print (element_id)
+    element = context.driver.find_element_by_id(element_id)
+    element.send_keys(text_string)

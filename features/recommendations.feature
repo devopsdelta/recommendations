@@ -5,9 +5,11 @@ Feature: The recommendations api service back-end
 
 Background:
     Given the following recommendations
-        | product_id | rec_type_id | rec_product_id | weight |
-        | 45	      | 2           | 51	         | 0.2    | 
-        
+    | rec_id | product_id | rec_type_id | rec_product_id | weight |
+    | 1      | 29         | 2           | 51             | 0.2    |
+    | 2      | 567        | 1           | 449            | .6     |
+    | 3      | 23         | 3           | 33             | .6     |
+
 Scenario: My server is running
      When I visit the "Home Page"
      Then I should see "Recommendation" in the title
@@ -22,6 +24,21 @@ Scenario: Get a recommendation
     And I will see a "weight" with "0.2" in my results
     And I should not see "rof-riders" in my results
 
+Scenario: List all recommendations
+    When I visit the "Recommendation Details" page
+    And I press the "Search" button
+    Then I should see "29" in the search_results
+    And I should see "23" in the search_results
+    And I should see "567" in the search_results
+    And I should not see "100" in the search_results
+
+Scenario: List all up-sell recommendations
+    When I visit the "Recommendation Details" page
+    And I set the "Type" to "up-sell"
+    And I press the "Search" button
+    Then I should see "567" in the search_results
+    And I should not see "29" in the search_results
+    And I should not see "23" in the search_results
 
  # Scenario: List all pets
  #     When I visit the "Home Page"

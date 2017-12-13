@@ -131,6 +131,8 @@ class RecommendationType(db.Model):
     @classmethod
     def find_by_name(cls, rec_name):
         """ Find a Recommendation Type By Name """
+        print "In find by name"
+        print rec_name
         return (cls.query.filter_by(name=str(rec_name.lower()))
                 .filter_by(is_active=True)).first()
 
