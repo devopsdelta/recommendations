@@ -9,11 +9,10 @@ import mock
 import os
 import unittest
 from app import server
-from app.connection import get_database_uri
 from app.models import db, init_db
 from app.models import Recommendation, RecommendationType
 from flask_api import status    # HTTP Status Codes
-from mock import MagicMock, patch
+from mock import patch
 
 ######################################################################
 #  T E S T   C A S E S
@@ -25,8 +24,7 @@ class TestRecommendationServer(unittest.TestCase):
         """ Runs before each test """
         
         self.app = server.app.test_client()
-        
-        server.initialize_logging(logging.ERROR)
+        server.initialize_logging()
         server.initialize_db()
         
         data = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
@@ -297,13 +295,12 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.post('/recommendations', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @unittest.skip("For now")
     @mock.patch('app.server.Recommendation.find_by_product_id_and_type')
     def test_search_bad_data(self, recommendation_find_mock):
         """ Test a search that returns bad data """
         recommendation_find_mock.return_value = 4
         resp = self.app.get('/recommendations', query_string='type=up-sell&product_id=23')
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ######################################################################
 # Utility functions

@@ -1,21 +1,12 @@
 import os
 import json
 import logging
-#from app.connection import get_database_uri
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-# SQLALCHEMY_DATABASE_URI = get_database_uri()
-# SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-# SECRET_KEY = 'secret-for-dev-only'
-# LOGGING_LEVEL = logging.INFO
-
 
 class Config(object):
     DEBUG = False
     TESTING = False
-    LOGGING_LEVEL = logging.INFO
     SECRET_KEY = 'secret-for-dev-only'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -44,7 +35,7 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    LOGGING_LEVEL = logging.ERROR
+    LOGGING_LEVEL = logging.CRITICAL
     logging.info("Using Test...")
     uri = 'postgres://postgres:password@localhost:5432/test'
     SQLALCHEMY_DATABASE_URI = uri

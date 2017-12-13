@@ -44,7 +44,6 @@ from sqlalchemy import Index, UniqueConstraint
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from flask_sqlalchemy import Model, SQLAlchemy
 from psycopg2 import OperationalError
-from app.connection import get_database_uri
 from . import app
 
 """ Base DB Model """

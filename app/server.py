@@ -71,13 +71,6 @@ def method_not_supported(error):
     app.logger.info(message)
     return jsonify(status=405, error='Method not Allowed', message=message), 405
 
-@app.errorhandler(415)
-def mediatype_not_supported(error):
-    """ Handles unsuppoted media requests with 415_UNSUPPORTED_MEDIA_TYPE """
-    message = error.message or str(error)
-    app.logger.info(message)
-    return jsonify(status=415, error='Unsupported media type', message=message), 415
-
 @app.errorhandler(500)
 def internal_server_error(error):
     """ Handles unexpected server error with 500_SERVER_ERROR """
@@ -312,11 +305,12 @@ def deactivate_recommendations(type_id):
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-def initialize_logging(log_level=logging.INFO):
+def initialize_logging():
     """ Initialized the default logging to STDOUT """
-    if app.debug:
+    if not app.debug:
         print 'Setting up logging...'
 
+        log_level = app.config['LOGGING_LEVEL']
         # Set up default logging for submodules to use STDOUT
         # datefmt='%m/%d/%Y %I:%M:%S %p'
         fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
