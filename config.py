@@ -22,6 +22,8 @@ class ProductionConfig(Config):
         creds = services['elephantsql'][0]['credentials']
         uri = creds["uri"]
         SQLALCHEMY_DATABASE_URI = uri
+        SQLALCHEMY_POOL_SIZE = 4
+        SQLALCHEMY_MAX_OVERFLOW = 1
 
 
 class DevelopmentConfig(Config):

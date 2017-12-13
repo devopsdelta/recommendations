@@ -135,8 +135,10 @@ class RecommendationCollection(Resource):
         else:
             recs = Recommendation.all()
 
+        print "Type", type_name, "product", product_id, "Recs", recs
         results = [rec.serialize() for rec in recs if rec is not None]
-        return make_response(jsonify(results), status.HTTP_200_OK)
+
+        return results, status.HTTP_200_OK
 
     @ns.doc('create_recommendation')
     @ns.expect(expected_create_model)

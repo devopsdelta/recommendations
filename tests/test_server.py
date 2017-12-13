@@ -246,11 +246,12 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_delete_recommendation(self):
         """ Delete a Recommendation that exists """
-        # save the current number of recommendations for later comparrison
+        # save the current number of recommendations for later comparison
         recommendation_count = self.get_recommendation_count()
 
         resp = self.app.get('/recommendations')
         data = json.loads(resp.data)
+        print data
         rec_id = data[0]['id']
 
         # delete a recommendation
