@@ -10,6 +10,7 @@ import requests
 from app import server
 from behave import *
 from os import getenv
+from compare import expect
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -22,23 +23,25 @@ def step_impl(context):
     """ Create Recommendations """
     headers = {'Content-Type': 'application/json'}
     create_url = context.base_url + '/recommendations'
+    
     for row in context.table:
         recommendations = { 
-        "rec_id": row['rec_id'], 
-        "product_id": row['product_id'], 
-        "rec_type_id": row['rec_type_id'], 
-        "rec_product_id": row['rec_product_id'], 
-        "weight": row['weight']
+        "product_id": int(row['product_id']),
+        "rec_type_id": int(row['rec_type_id']),
+        "rec_product_id": int(row['rec_product_id']), 
+        "weight": float(row['weight'])
         }
         payload = json.dumps(recommendations)
+
         context.resp = requests.post(create_url, data=payload, headers=headers)
-        assert (context.resp.status_code==201)
+        #assert (context.resp.status_code==201)
+        expect(context.resp.status_code).to_equal(201)
    
 
 @when(u'I visit the "Home Page"')
 def step_impl(context):
     """ Make a call to the base URL """
-    context.driver.get(context.base_url)
+    context.driver.get(context.base_url + '/index')
 
 @then(u'I should see "{message}" in the title')
 def step_impl(context, message):
@@ -49,9 +52,8 @@ def step_impl(context, message):
 def step_impl(context):
     """ Check to make sure there is no 404 message """
     context.resp = requests.get(context.base_url)
-    assert context.resp.status_code !=404
-
-
+    print (context.resp.status_code)
+    assert context.resp.status_code != str(404)
 
 @when(u'I visit the "Recommendation Details" page for recommendation detail "{message}"')
 def step_impl(context,message):

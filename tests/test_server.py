@@ -3,6 +3,7 @@
 # coverage report -m
 
 """ Test cases for the Recommendation Service """
+import config
 import json
 import logging
 import mock
@@ -15,6 +16,17 @@ from flask_api import status    # HTTP Status Codes
 from mock import patch
 
 APP_SETTING = os.getenv('APP_SETTING', 'TestingConfig')
+
+# Status Codes
+HTTP_200_OK = 200
+HTTP_201_CREATED = 201
+HTTP_204_NO_CONTENT = 204
+HTTP_400_BAD_REQUEST = 400
+HTTP_404_NOT_FOUND = 404
+HTTP_405_METHOD_NOT_ALLOWED = 405
+HTTP_409_CONFLICT = 409
+HTTP_415_UNSUPPORTED_MEDIA_TYPE = 415
+HTTP_500_INTERNAL_SERVER_ERROR = 500
 
 ######################################################################
 #  T E S T   C A S E S
@@ -57,7 +69,7 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_index_view(self):
         """ Test the Home Page """
-        resp = self.app.get('/')
+        resp = self.app.get('/index')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue('Recommendation Demo REST API Service' in resp.data)
 
@@ -66,12 +78,6 @@ class TestRecommendationServer(unittest.TestCase):
         resp = self.app.get('/recommendations/metadata')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue('Manage Product Category Metadata' in resp.data)
-
-    def test_docs_view(self):
-        """ Test the Documentations Page """
-        resp = self.app.get('/recommendations/docs')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue('Documentation' in resp.data)
 
     def test_manage_view(self):
         """ Test the Manage Recommendations Page """
@@ -121,8 +127,8 @@ class TestRecommendationServer(unittest.TestCase):
     def test_rec_detail(self):
         """ Get one Recommendation Detail """
         resp = self.app.get('/recommendations/detail/1')
-        self.assertEqual(resp.status_code,status.HTTP_200_OK)
-
+        print resp
+        self.assertEqual(resp.status_code, HTTP_200_OK)
 
     def test_get_recommendation_not_found(self):
         """ Get a Recommendation thats not found """
@@ -164,10 +170,10 @@ class TestRecommendationServer(unittest.TestCase):
         self.assertEqual(data['rec_type']['is_active'], False)
 
         resp = self.app.put('/recommendations/activate/3', content_type='application/json')
-        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        self.assertEquals(resp.status_code, HTTP_200_OK)
 
         resp = self.app.get('/recommendations/3')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(data['rec_type']['is_active'], True)
 
@@ -175,11 +181,12 @@ class TestRecommendationServer(unittest.TestCase):
         """ Activate a Recommendation Type that is not found """
 
         resp = self.app.put('/recommendations/activate/5', content_type='application/json')
-        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEquals(resp.status_code, HTTP_404_NOT_FOUND)
 
     def test_create_recommendation(self):
         """ Create a Recommendation """
-        # save the current number of recommendations for later comparrison
+        # save the current number of recommendations for later comparison
+        
         data = { "product_id": 33, "rec_type_id": 1, "rec_product_id": 41, "weight": 3.5 }
         rec = Recommendation()
         rec.deserialize(data)
@@ -239,11 +246,12 @@ class TestRecommendationServer(unittest.TestCase):
 
     def test_delete_recommendation(self):
         """ Delete a Recommendation that exists """
-        # save the current number of recommendations for later comparrison
+        # save the current number of recommendations for later comparison
         recommendation_count = self.get_recommendation_count()
 
         resp = self.app.get('/recommendations')
         data = json.loads(resp.data)
+        print data
         rec_id = data[0]['id']
 
         # delete a recommendation
@@ -289,21 +297,21 @@ class TestRecommendationServer(unittest.TestCase):
         """ Test a Bad Request error from Find By Type """
         bad_request_mock.side_effect = ValueError()
         resp = self.app.get('/recommendations', query_string='type=up-sell&product_id=23')
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.status_code, HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_bad_post_request(self):
         """ Test a Validation error when performing a POST """
         new_recommendation = {'id': 87}
         data = json.dumps(new_recommendation)
         resp = self.app.post('/recommendations', data=data, content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.status_code, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @mock.patch('app.server.Recommendation.find_by_product_id_and_type')
     def test_search_bad_data(self, recommendation_find_mock):
         """ Test a search that returns bad data """
         recommendation_find_mock.return_value = 4
         resp = self.app.get('/recommendations', query_string='type=up-sell&product_id=23')
-        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(resp.status_code, HTTP_500_INTERNAL_SERVER_ERROR)
 
 ######################################################################
 # Utility functions

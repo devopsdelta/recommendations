@@ -38,6 +38,7 @@ import json
 import urlparse
 import logging
 from datetime import datetime
+from cerberus import Validator
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Boolean, DateTime
 from sqlalchemy import Index, UniqueConstraint
@@ -113,7 +114,6 @@ class RecommendationType(db.Model):
     product_query = Column(String(255), nullable=False)
     # Category="originalproductCategory", Price > current Product Price + 1
 
-
     def __init__(self, Name=None, active=True, query=None):
         self.name = Name
         self.is_active = active
@@ -147,6 +147,14 @@ class Recommendation(db.Model):
     # 2  | 23         | 2       | 34                    | .6
     # 3  | 33         | 1       | 45                    | .6
 
+    schema = {
+        'id': {'type': 'integer'},
+        'product_id': {'type': 'integer', 'required': True},
+        'rec_type_id': {'type': 'integer', 'required': True},
+        'rec_product_id': {'type': 'integer', 'required': True},
+        'weight': {'type': 'float', 'required': True}
+        }
+    __validator = Validator(schema)
 
     __tablename__ = 'recommendation'
     id = Column(Integer, primary_key = True)
@@ -165,6 +173,7 @@ class Recommendation(db.Model):
         return {'id': self.id, \
                 'product_id': self.product_id, \
                 'rec_type': self.rec_type.serialize(), \
+                'rec_type_id': self.rec_type.id, \
                 'rec_product_id': self.rec_product_id, \
                 'weight': self.weight}
 
@@ -175,17 +184,14 @@ class Recommendation(db.Model):
             data (dict): A dictionary containing the Recommendation data
         """
 
-        if not isinstance(data, dict):
-            raise DataValidationError('Invalid recommendation: body of request contained bad or no data')
-
-        try:
+        if isinstance(data, dict) and Recommendation.__validator.validate(data):
             self.product_id = data['product_id']
             self.rec_type_id = data['rec_type_id']
             self.rec_product_id = data['rec_product_id']
             self.weight = float(data['weight'])
-        except KeyError as err:
-            raise DataValidationError('Invalid recommendation: missing ' + err.args[0])
-        return
+        else:
+            raise DataValidationError('Invalid recommendation data: ' + str(Recommendation.__validator.errors))
+        return self
 
     @classmethod
     def find_by_product_id(cls, prod_id):
