@@ -34,7 +34,6 @@
     <!-- Google Font -->
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -88,12 +87,9 @@
         <small>Manage all things recommended</small>
       </h1>
     </section>
-
     <!-- Main content -->
     <section class="content container-fluid">
-
       {% block content %}{% endblock %}
-
     </section>
     <!-- /.content -->
   </div>
@@ -132,6 +128,9 @@
   <script type="text/javascript">
       {{ static_include("js/adminlte.min.js") | safe }}
   </script>
+  <script type="text/javascript">
+    {{ static_include("js/recommendations.js") | safe }}
+</script>
 {% endblock %}
 
 {% block scripts %}{% endblock %}

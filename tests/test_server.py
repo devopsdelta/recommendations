@@ -127,7 +127,6 @@ class TestRecommendationServer(unittest.TestCase):
     def test_rec_detail(self):
         """ Get one Recommendation Detail """
         resp = self.app.get('/recommendations/detail/1')
-        print resp
         self.assertEqual(resp.status_code, HTTP_200_OK)
 
     def test_get_recommendation_not_found(self):
@@ -251,7 +250,6 @@ class TestRecommendationServer(unittest.TestCase):
 
         resp = self.app.get('/recommendations')
         data = json.loads(resp.data)
-        print data
         rec_id = data[0]['id']
 
         # delete a recommendation

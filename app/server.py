@@ -18,7 +18,7 @@ from flask import Flask, jsonify, request, url_for, make_response, json, render_
 from flask_api import status    # HTTP Status Codes
 from flask_restplus import Resource
 from werkzeug.exceptions import NotFound
-from models import Recommendation, RecommendationType, init_db, DataValidationError
+from models import Recommendation, RecommendationType, init_db, DataValidationError, db
 from engine import Engine
 from . import app
 from swagger import api, ns, recommendation_model, expected_create_model
@@ -49,7 +49,7 @@ class RecommendationResource(Resource):
         This endpoint will return a Recommendations based on it's id
         """
         recommendation = Recommendation.find_by_id(recommendation_id)
-        
+
         recJSON = ""
         if not recommendation:
             raise NotFound("Recommendations with id '{}' was not found.".format(recommendation_id))
@@ -122,7 +122,6 @@ class RecommendationCollection(Resource):
 
         if type_name:
             rec_type = RecommendationType.find_by_name(type_name)
-
             if not rec_type:
                 raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
 
@@ -135,7 +134,6 @@ class RecommendationCollection(Resource):
         else:
             recs = Recommendation.all()
 
-        print "Type", type_name, "product", product_id, "Recs", recs
         results = [rec.serialize() for rec in recs if rec is not None]
 
         return results, status.HTTP_200_OK
@@ -173,12 +171,12 @@ class ActivateResource(Resource):
     @ns.doc('activate_recommendation')
     @ns.response(404, 'Recommendation not found')
     @ns.response(409, 'The Recommendation is not available to activate')
-    def put(self, type_id):        
+    def put(self, type_id):
         """ Activate a Recommendation Type
 
         This endpoint will activate a Recommendation type based the type specified in the path
         """
-    
+
         rec_type = RecommendationType.find_by_id(type_id)
 
         if not rec_type:
@@ -212,6 +210,17 @@ class DeactivateResource(Resource):
         rec_type.save()
 
         return 'Recommendation Type {} is deactivated.\n'.format(type), status.HTTP_200_OK
+
+######################################################################
+# DELETE ALL RECOMMENDATION DATA (for testing only)
+######################################################################
+@app.route('/recommendations/reset', methods=['DELETE'])
+def reset_recommendations():
+    """ Removes all recommendations from the database """
+    db.session.remove()
+    db.drop_all()
+    init_db()
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

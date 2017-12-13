@@ -1,7 +1,8 @@
 from server import app
-from flask import render_template
+from flask import render_template, request
 from flask_api import status    # HTTP Status Codes
-from models import Recommendation
+from werkzeug.exceptions import NotFound
+from models import Recommendation, init_db, db, RecommendationType
 
 ######################################################################
 # Views
@@ -10,7 +11,7 @@ from models import Recommendation
 def index():
     """ Root URL response """
     return render_template('index.html', name='Recommendation Demo REST API Service',
-                   version='1.0'), status.HTTP_200_OK
+                           version='1.0'), status.HTTP_200_OK
 
 @app.route('/recommendations/metadata')
 def metadata():
@@ -20,7 +21,22 @@ def metadata():
 @app.route('/recommendations/manage')
 def manage_recommendations():
     """ Manage Recommendation View """
-    return render_template('recommendations.html', name="Manage"), status.HTTP_200_OK
+    type_name = request.args.get('type')
+    rec_type = None
+
+    if type_name:
+        rec_type = RecommendationType.find_by_name(type_name)
+        if not rec_type:
+            raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
+
+    print rec_type
+    if rec_type:
+        recs = Recommendation.find_by_type(rec_type)
+    else:
+        recs = Recommendation.all()
+
+    results = [rec.serialize() for rec in recs if rec is not None]
+    return render_template('manage.html', name="Manage", result=results), status.HTTP_200_OK
 
 @app.route('/recommendations/docs')
 def view_documentation():
@@ -32,7 +48,7 @@ def rec_detail(recommendation_id):
     """ Manage Recommendation Detail"""
     rec = Recommendation.find_by_id(recommendation_id)
     recJSON = rec.serialize()
-    return render_template('recommendation.html',
+    return render_template('manage/detail.html',
                             detail_id = recJSON["id"],
                             product_id=recJSON["product_id"] ,
                             rec_type = recJSON["rec_type"]["id"],
