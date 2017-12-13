@@ -58,12 +58,14 @@ def step_impl(context):
 
 @when(u'I visit the "Recommendation Details" page for recommendation detail "{message}"')
 def step_impl(context,message):
-    context.driver.get(context.base_url+"/recommendations/detail/{message}")
+    context.driver.get(context.base_url+"/recommendations/detail/"+message)
+    context.driver.save_screenshot('line60.png')
 
 @then(u'I will see a "rec_id" with "1" in my results')
 def step_impl(context):
     context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_id')))
+    context.driver.save_screenshot('line66.png')
     assert found.text == '1'
     assert found.text != 'batman'
     context.driver.save_screenshot('line67.png')
@@ -79,10 +81,12 @@ def step_impl(context):
 @then(u'I will see a "rec_type_id" with "2" in my results')
 def step_impl(context):
     context.driver.get(context.base_url+"/recommendations/detail/1")
-    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_type_id')))
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_type')))
+    context.driver.save_screenshot('line84.png')
+    print (found.text)
+
     assert found.text == '2'
     assert found.text != 'batman'
-    context.driver.save_screenshot('GetTest.png')
 
 @then(u'I will see a "rec_product_id" with "51" in my results')
 def step_impl(context):
