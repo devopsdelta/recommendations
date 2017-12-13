@@ -17,7 +17,7 @@ import requests
 from flask import Flask, jsonify, request, url_for, make_response, json, render_template
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
-from models import Recommendation, RecommendationType, init_db, DataValidationError
+from models import Recommendation, RecommendationType, init_db, DataValidationError, db
 from engine import Engine
 from . import app
 
@@ -115,6 +115,39 @@ def rec_detail(recommendation_id):
                             rec_product_id = recJSON["rec_product_id"],
                             weight = recJSON["weight"],
                             status = recJSON["rec_type"]["is_active"]),status.HTTP_200_OK
+
+@app.route('/recommendations/list')
+def list_rec():
+    """ Manage Recommendation Detail"""
+    recs = Recommendation.all()
+    results = [rec.serialize() for rec in recs if rec is not None]
+    return render_template('list.html', result=results),status.HTTP_200_OK
+
+@app.route('/recommendations/query')
+def query_rec():
+    """ Manage Recommendation Detail"""
+    type_name = request.args.get('type')
+    product_id = request.args.get('product_id')
+    results = []
+    rec_type = None
+
+    if type_name:
+        rec_type = RecommendationType.find_by_name(type_name)
+
+        if not rec_type:
+            raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
+
+    if rec_type and product_id:
+        recs = Recommendation.find_by_product_id_and_type(product_id, rec_type)
+    elif rec_type:
+        recs = Recommendation.find_by_type(rec_type)
+    elif product_id:
+        recs = Recommendation.find_by_product_id(product_id)
+    else:
+        recs = Recommendation.all()
+
+    results = [rec.serialize() for rec in recs if rec is not None]
+    return render_template('query.html', result=results), status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL RECOMMENDATIONS
@@ -301,6 +334,17 @@ def deactivate_recommendations(type_id):
     rec_type.save()
 
     return make_response('Recommendation Type {} is deactivated.\n'.format(type), status.HTTP_200_OK)
+
+######################################################################
+# DELETE ALL RECOMMENDATION DATA (for testing only)
+######################################################################
+@app.route('/recommendations/reset', methods=['DELETE'])
+def recommendations_reset():
+    """ Removes all recommendations from the database """
+    db.session.remove()
+    db.drop_all()
+    initialize_db()
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

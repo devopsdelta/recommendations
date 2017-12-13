@@ -29,7 +29,7 @@ class TestRecommendationServer(unittest.TestCase):
         self.app = server.app.test_client()
         server.initialize_logging(logging.ERROR)
         server.initialize_db()
-        
+
         data = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
         rec = Recommendation()
         rec.deserialize(data)
@@ -107,6 +107,16 @@ class TestRecommendationServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(json.loads(resp.data)), 1)
 
+    def test_view_list_recommendations(self):
+        """ View List All Recommendations """
+        resp = self.app.get('/recommendations/list')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_view_query_recommendation_list_by_type(self):
+        """ View Query Recommendation By Type """
+        resp = self.app.get('/recommendations/query?type=up-sell')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_get_recommendation(self):
         """ Get one Recommendation """
         resp = self.app.get('/recommendations/2')
@@ -122,7 +132,6 @@ class TestRecommendationServer(unittest.TestCase):
         """ Get one Recommendation Detail """
         resp = self.app.get('/recommendations/detail/1')
         self.assertEqual(resp.status_code,status.HTTP_200_OK)
-
 
     def test_get_recommendation_not_found(self):
         """ Get a Recommendation thats not found """

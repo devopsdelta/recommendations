@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}
+  Manage Recommendations
+{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+
+  <h1>Recommendation</h1>
+   <div class="row">
+     <div class="col-md-12">
+       <div class="box box-default">
+         <div class="box-header with-border">
+           <h3 class="box-title">Recommendation Details</h3>
+
+           <div class="box-tools pull-right">
+             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+             <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+           </div>
+         </div>
+         <!-- /.box-header -->
+         <div class="row">
+           <div class="col-md-12">
+             <div class="box box-default">
+               <div class="box-header with-border">
+                 <h3 class="box-title">Search for Recommendation</h3>
+                 <div class="box-tools pull-right">
+                   <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                   <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+                 </div>
+               </div>
+               <!-- /.box-header -->
+               <div class="box-body">
+                 <div class="row">
+                   <div class="col-md-12">
+                     <form id="search_form" name="search_form" action="" method="post">
+                       <div class="form-group">
+                         <label for="product_id">Product Id</label>
+                         <input type="number" class="form-control" id="product_id" placeholder="351">
+                       </div>
+                       <div class="form-group">
+                         <label for="type_id">Select Recommendation Type</label>
+                         <select class="form-control" id="type_id">
+                           <option value="1">up-sell</option>
+                           <option value="2">accessory</option>
+                           <option value="3">cross-sell</option>
+                         </select>
+                       </div>
+                        <button type="submit" class="btn btn-primary" id="search-btn" name="btn_create">Search</button>
+                     </form>
+                   </div>
+                   <!-- /.row -->
+                 </div>
+                 <!-- /.box-body -->
+               </div>
+               <div class="box-body">
+                   <div class="row">
+                     <div class="col-md-12">
+                       <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                         <thead>
+                           <tr role="row">
+                             <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 240.8px;" aria-sort="ascending" aria-label="Recommendation Id: activate to sort column descending">Rec Id</th>
+                             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 303.6px;" aria-label="Product Id: activate to sort column ascending">Product Id</th>
+                             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 259.833px;" aria-label="Type: activate to sort column ascending">Type</th>
+                             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 208.433px;" aria-label="Recommended Product Id: activate to sort column ascending">Rec Product Id</th>
+                             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 152.333px;" aria-label="Weight: activate to sort column ascending">Weight</th>
+                             <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 152.333px;" aria-label="Status: activate to sort column ascending">&nbsp;</th>
+                           </tr>
+                         </thead>
+                         <tbody id="search_result">
+                           <!-- review macro for inserting ids into link when building list implementation -->
+                           <!-- <td class="sorting_1"><a href="/recommendations/detail/{recommendation_id}">1</a></td> -->
+                           <!--  -->
+                           {% for recommendation in result %}
+                           <tr role="row">
+                             <input type="hidden" value="{{ recommendation.id }}" />
+                              <td><a href="/recommendations/detail/{{ recommendation.id }}">{{ recommendation.id }}</a></td>
+                              <td>{{recommendation.product_id}}</td>
+                              <td>{{recommendation.rec_type.id}}</td>
+                              <td>{{recommendation.rec_product_id}}</td>
+                              <td>{{recommendation.weight}}</td>
+                              <td>
+                                <a href="/recommendations/edit/{{ recommendation.id }}" alt="Edit">Edit</a> | <a href="/recommendations/delete/{{ recommendation.id }}">Delete</a></td>
+                              </td>
+                           </tr>
+                          {% endfor %}
+                         </tbody>
+                       </table>                     </div>
+                   </div>
+               </div>
+             </div>
+           </div>
+         </div>
+         <!-- /.box-body -->
+       </div>
+     </div>
+   </div>
+
+{% endblock %}
