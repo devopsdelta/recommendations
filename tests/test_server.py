@@ -9,13 +9,12 @@ import mock
 import os
 import unittest
 from app import server
-from app.connection import get_database_uri
 from app.models import db, init_db
 from app.models import Recommendation, RecommendationType
 from flask_api import status    # HTTP Status Codes
-from mock import MagicMock, patch
+from mock import patch
 
-os.environ['TEST'] = 'True'
+APP_SETTING = os.getenv('APP_SETTING', 'TestingConfig')
 
 ######################################################################
 #  T E S T   C A S E S
@@ -25,9 +24,10 @@ class TestRecommendationServer(unittest.TestCase):
 
     def setUp(self):
         """ Runs before each test """
-
+        
+        server.app.config.from_object('config.%s' % str(APP_SETTING))
         self.app = server.app.test_client()
-        server.initialize_logging(logging.ERROR)
+        server.initialize_logging()
         server.initialize_db()
         
         data = { "product_id": 23, "rec_type_id": 1, "rec_product_id": 45, "weight": .5 }
@@ -52,7 +52,7 @@ class TestRecommendationServer(unittest.TestCase):
 
     def tearDown(self):
         """ Runs after each test """
-        db.session.remove()
+        db.session.close()
         db.drop_all()
 
     def test_index_view(self):

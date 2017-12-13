@@ -44,12 +44,13 @@ from sqlalchemy import Index, UniqueConstraint
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from flask_sqlalchemy import Model, SQLAlchemy
 from psycopg2 import OperationalError
-from app.connection import get_database_uri
+from . import app
 
 """ Base DB Model """
 class BaseModel(Model):
     __abstract__ = True
 
+    @classmethod
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
@@ -93,10 +94,10 @@ class BaseModel(Model):
         """ Find a Record by primary key """
         return cls.query.get(id)
 
-db = SQLAlchemy(model_class=BaseModel)
+db = SQLAlchemy(model_class=BaseModel, app=app)
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """ Used for an data validation errors when de-serializing """
     pass
 
 class RecommendationType(db.Model):
@@ -210,7 +211,7 @@ class Recommendation(db.Model):
 #  E L E P H A N T S Q L   D A T A B A S E   C O N N E C T I O N   M E T H O D S
 #################################################################################
 
-def init_db(app):
+def init_db():
     """
     Initialized database connection
 
@@ -220,8 +221,6 @@ def init_db(app):
     """
 
     try:
-        db.init_app(app)
-        app.app_context().push()
         db.create_all()
 
         if len(RecommendationType.all()) == 0:
