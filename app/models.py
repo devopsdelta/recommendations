@@ -97,7 +97,7 @@ class BaseModel(Model):
 db = SQLAlchemy(model_class=BaseModel, app=app)
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """ Used for an data validation errors when de-serializing """
     pass
 
 class RecommendationType(db.Model):
@@ -221,8 +221,6 @@ def init_db():
     """
 
     try:
-        # db.init_app(app)
-        # app.app_context().push()
         db.create_all()
 
         if len(RecommendationType.all()) == 0:
