@@ -31,7 +31,6 @@ def view_documentation():
 def rec_detail(recommendation_id):
     """ Manage Recommendation Detail"""
     rec = Recommendation.find_by_id(recommendation_id)
-    print rec
     recJSON = rec.serialize()
     return render_template('manage/detail.html',
                             detail_id = recJSON["id"],

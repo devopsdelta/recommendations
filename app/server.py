@@ -122,7 +122,6 @@ class RecommendationCollection(Resource):
 
         if type_name:
             rec_type = RecommendationType.find_by_name(type_name)
-            print rec_type
             if not rec_type:
                 raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
 
