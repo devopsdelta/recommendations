@@ -22,7 +22,7 @@ $(function () {
         // Create or Update a Recommendation
         // ****************************************
 
-        $("#create-btn").click(function () {
+        $("#save-btn").click(function () {
             var rec_id = $("#rec_id").val();
             var verb = "POST"
             var url = "/recommendations"
@@ -160,8 +160,8 @@ $(function () {
                     row += "<td>" + rec.rec_type.name + "</td>"
                     row += "<td>" + rec.rec_product_id + "</td>"
                     row += "<td>" + rec.weight + "</td>"
-                    row += "<td><button class='btn btn-link' id='edit_" + rec.id + "' onclick='edit_row(" + rec.id + ");'>Edit</button> | "
-                    row += "<button class='btn btn-link' id='delete_" + rec.id + "' onclick='confirm_delete(" + rec.id + ");'>Delete</button></td>"
+                    row += "<td><button class='btn btn-link' id='edit_" + rec.id + "-btn' onclick='edit_row(" + rec.id + ");'>Edit</button> | "
+                    row += "<button class='btn btn-link' id='delete_" + rec.id + "-btn' onclick='confirm_delete(" + rec.id + ");'>Delete</button></td>"
                     row += "</tr>"
 
                     html += row

@@ -122,6 +122,7 @@ def step_impl(context):
 def step_impl(context, button):
     button_id = button.lower() + '-btn'
     context.driver.find_element_by_id(button_id).click()
+    context.driver.save_screenshot('line125.png')
 
 @then(u'I should see "{message}" in the search_results')
 def step_impl(context, message):
@@ -144,10 +145,10 @@ def step_impl(context, message):
 #===============================================================================================
 @when(u'I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
-    url = context.base_url+"/recommendations/manage?" + element_name.lower() + "=" + text_string.lower()
-    context.driver.get(url)
-    element_id = 'rec_type_name'
-    element = context.driver.find_element_by_id(element_id)
+    # url = context.base_url+"/recommendations/manage?" + element_name.lower() + "=" + text_string.lower()
+    # context.driver.get(url)
+    # element_id = 'rec_type_name'
+    element = context.driver.find_element_by_id(element_name)
     element.send_keys(text_string)
 
 #===============================================================================================
@@ -170,3 +171,8 @@ def step_impl(context, message):
         )
     )
     expect(found).to_be(True)
+
+@then(u'I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element = context.driver.find_element_by_id(element_name)
+    element.send_keys(text_string)
