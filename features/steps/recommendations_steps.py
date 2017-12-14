@@ -17,7 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 BASE_URL = getenv('BASE_URL', 'http://0.0.0.0:8081')
-WAIT_SECONDS = 15
+WAIT_SECONDS = 5
 @given(u'the following recommendations')
 def step_impl(context):
     """ Create Recommendations """
@@ -122,7 +122,7 @@ def step_impl(context):
 def step_impl(context, button):
     button_id = button.lower() + '-btn'
     context.driver.find_element_by_id(button_id).click()
-    context.driver.save_screenshot('line125.png')
+    context.driver.save_screenshot(button + '.png')
 
 @then(u'I should see "{message}" in the search_results')
 def step_impl(context, message):
@@ -162,8 +162,6 @@ def step_impl(context, element_name, text_string):
 
 @then(u'I should see the message "{message}"')
 def step_impl(context, message):
-    #element = context.driver.find_element_by_id('flash_message')
-    #expect(element.text).to_contain(message)
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(
         expected_conditions.text_to_be_present_in_element(
             (By.ID, 'flash_message'),
@@ -171,8 +169,29 @@ def step_impl(context, message):
         )
     )
     expect(found).to_be(True)
+    context.driver.save_screenshot('message.png')
 
-@then(u'I set the "{element_name}" to "{text_string}"')
-def step_impl(context, element_name, text_string):
-    element = context.driver.find_element_by_id(element_name)
+@then(u'I set the "{element_id}" to "{text_string}"')
+def step_impl(context, element_id, text_string):
+    element = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    element.clear()
     element.send_keys(text_string)
+
+@then(u'I should see "{value}" in the "{element_id}" field')
+def step_impl(context, value, element_id):
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element_value(
+            (By.ID, element_id),
+            value
+        )
+    )
+    expect(found).to_be(True)
+
+
+@then(u'I press the "{button}" button')
+def step_impl(context, button):
+    button_id = button.lower() + '-btn'
+    context.driver.find_element_by_id(button_id).click()
+    context.driver.save_screenshot('line190.png')

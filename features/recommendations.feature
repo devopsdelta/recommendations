@@ -15,20 +15,6 @@ Scenario: My server is running
      Then I should see "Recommendation" in the title
      And I should not see "404 Not Found"
 
-Scenario: Update a Recommendation
-    When I visit the "Recommendation Details" page
-    And I press the "Search" button
-    And I press the "edit_1" button
-    Then I should see "1" in the "rec_id" field
-    And I should see "29" in the "product_id" field
-    And I should see "2" in the "rec_type_id" field
-    And I should see "51" in the "rec_product_id" field
-    And I should see "0.2" in the "weight_id" field
-    And I set the "product_id" to "8755"
-    And I press the "Save" button
-    Then I should see the message "Updated"
-    And I should see "8755" in the "product_id" field
-
 Scenario: Get a recommendation
     When I visit the "Recommendation Details" page for recommendation detail "1"
     Then I will see a "rec_id" with "1" in my results
@@ -63,3 +49,16 @@ Scenario: Create a Recommendation
     And I press the "Save" button
     Then I should see the message "Created"
 
+Scenario: Update a Recommendation
+    When I visit the "Recommendation Details" page
+    And I press the "Search" button
+    And I press the "edit_1" button
+    Then I should see "1" in the "rec_id" field
+    And I should see "29" in the "product_id" field
+    And I should see "2" in the "rec_type_id" field
+    And I should see "51" in the "rec_product_id" field
+    And I should see "0.2" in the "weight_id" field
+    And I set the "product_id" to "8755"
+    And I press the "Save" button
+    And I should see the message "Updated"
+    And I should see "8755" in the "product_id" field

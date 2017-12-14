@@ -9,7 +9,7 @@ $(function () {
             $("#product_id").val(res.product_id);
             $("#rec_product_id").val(res.rec_product_id);
             $("#rec_type_id").val(res.rec_type_id);
-            $("#weight").val(res.weight);
+            $("#weight_id").val(res.weight);
 
             if (res.available == true) {
                 $("#rec_available").val("true");
@@ -60,6 +60,7 @@ $(function () {
             });
 
             ajax.done(function(res){
+                clear_form_data()
                 update_form_data(res)
                 flash_message(message)
             });
@@ -206,7 +207,8 @@ $(function () {
     }
 
     function edit_row(id) {
-
+        console.log(id);
+        
         var ajax = $.ajax({
             type: "GET",
             url: "/recommendations/" + id,
@@ -215,11 +217,13 @@ $(function () {
         })
 
         ajax.done(function(res){
+            console.log(res);
+            clear_form_data()
             $("#rec_id").val(res.id)
             $("#product_id").val(res.product_id);
             $("#rec_product_id").val(res.rec_product_id);
             $("#rec_type_id").val(res.rec_type_id);
-            $("#weight").val(res.weight);
+            $("#weight_id").val(res.weight);
 
             if (res.available == true) {
                 $("#rec_available").val("true");
@@ -234,6 +238,7 @@ $(function () {
             clear_form_data()
             flash_message(res.responseJSON.message)
         });
+
     }
 
     // Updates the flash message area
