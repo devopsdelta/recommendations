@@ -39,18 +39,12 @@ $(function () {
             var rec_type_id = $("#rec_type_id").val();
             var weight_id = $("#weight_id").val();
 
-            console.log(product_id);
-            console.log(rec_product_id);
-            console.log(rec_type_id);
-            console.log(weight_id);
-
             var data = {
                 "product_id": parseInt(product_id),
                 "rec_product_id": parseInt(rec_product_id),
                 "rec_type_id": parseInt(rec_type_id),
                 "weight": parseFloat(weight_id)
             };
-            console.log(data);
 
             var ajax = $.ajax({
                 type: verb,
@@ -206,9 +200,7 @@ $(function () {
         }
     }
 
-    function edit_row(id) {
-        console.log(id);
-        
+    function edit_row(id) {        
         var ajax = $.ajax({
             type: "GET",
             url: "/recommendations/" + id,
@@ -217,7 +209,6 @@ $(function () {
         })
 
         ajax.done(function(res){
-            console.log(res);
             clear_form_data()
             $("#rec_id").val(res.id)
             $("#product_id").val(res.product_id);
