@@ -29,7 +29,6 @@ def manage_recommendations():
         if not rec_type:
             raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
 
-    print rec_type
     if rec_type:
         recs = Recommendation.find_by_type(rec_type)
     else:
@@ -55,3 +54,14 @@ def rec_detail(recommendation_id):
                             rec_product_id = recJSON["rec_product_id"],
                             weight = recJSON["weight"],
                             status = recJSON["rec_type"]["is_active"]),status.HTTP_200_OK
+
+@app.route('/recommendations/manage/<int:recommendation_id>')
+def create_recommendations(recommendation_id):
+    """ Create Recommendation View """
+    data = request.get_json()
+    rec = Recommendation()
+    rec.deserialize(data)
+    rec.save()
+    message = rec.serialize()
+
+    return render_template('manage.html', name="Manage", result=message), status.HTTP_201_CREATED

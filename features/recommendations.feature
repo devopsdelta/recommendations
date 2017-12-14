@@ -22,7 +22,7 @@ Scenario: Get a recommendation
     And I will see a "rec_type_id" with "2" in my results
     And I will see a "rec_product_id" with "51" in my results
     And I will see a "weight" with "0.2" in my results
-    And I should not see "rof-riders" in my results
+    #And I should not see "rof-riders" in my results
 
 Scenario: List all recommendations
     When I visit the "Recommendation Details" page
@@ -39,6 +39,15 @@ Scenario: List all up-sell recommendations
     Then I should see "567" in the search_results
     And I should not see "29" in the search_results
     And I should not see "23" in the search_results
+
+Scenario: Create a Recommenation
+    When I visit the "Recommendation Details" page
+    And I enter the "Product" to "84"
+    And I enter the "Rec_Product" to "621"
+    And I enter the "Rec_Type" to "Accessory"
+    And I enter the "Weight" to "0.8"
+    And I press the "Create" button
+    Then I should see the message "Created"
 
  # Scenario: List all pets
  #     When I visit the "Home Page"
