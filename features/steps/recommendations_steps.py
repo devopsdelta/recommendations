@@ -178,6 +178,7 @@ def step_impl(context, element_id, text_string):
 
 @then(u'I should see "{value}" in the "{element_id}" field')
 def step_impl(context, value, element_id):
+    context.driver.save_screenshot(element_id + '_' + value + '.png')
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(
         expected_conditions.text_to_be_present_in_element_value(
             (By.ID, element_id),
@@ -186,9 +187,13 @@ def step_impl(context, value, element_id):
     )
     expect(found).to_be(True)
 
-
 @then(u'I press the "{button}" button')
 def step_impl(context, button):
     button_id = button.lower() + '-btn'
     context.driver.find_element_by_id(button_id).click()
     context.driver.save_screenshot(button_id+'.png')
+
+@then(u'I should see "{value}" in "{element_id}"')
+def step_impl(context, value, element_id):
+    element = context.driver.find_element_by_id(element_id)
+    expect(value in element.text).to_be(True)

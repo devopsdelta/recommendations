@@ -21,21 +21,8 @@ def metadata():
 @app.route('/recommendations/manage')
 def manage_recommendations():
     """ Manage Recommendation View """
-    type_name = request.args.get('type')
-    rec_type = None
-
-    if type_name:
-        rec_type = RecommendationType.find_by_name(type_name)
-        if not rec_type:
-            raise NotFound("Recommendations with type '{}' was not found.".format(type_name))
-
-    if rec_type:
-        recs = Recommendation.find_by_type(rec_type)
-    else:
-        recs = Recommendation.all()
-
-    results = [rec.serialize() for rec in recs if rec is not None]
-    return render_template('manage.html', name="Manage", result=results), status.HTTP_200_OK
+    rec_types = sorted(RecommendationType.all())
+    return render_template('manage.html', name="Manage", result=rec_types), status.HTTP_200_OK
 
 @app.route('/recommendations/docs')
 def view_documentation():

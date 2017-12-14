@@ -174,7 +174,6 @@ $(function () {
             });
 
         });
-
     })
 
     function confirm_delete(id) {
@@ -186,7 +185,6 @@ $(function () {
         })
 
         ajax.done(function(res){
-            // alert("Recommendation with ID [" + id + "] has been Deleted!")
             flash_message("Deleted")
             if(!json.error) location.reload(true);
         });
@@ -227,6 +225,44 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
 
+    }
+
+    function activate(id) {
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/recommendations/activate/" + id,
+            contentType:"application/json",
+            data: '',
+        })
+
+        ajax.done(function(res){
+            flash_message("Activated")
+            location.reload();
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
+    
+    }
+
+    function deactivate(id) {
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/recommendations/deactivate/" + id,
+            contentType:"application/json",
+            data: '',
+        })
+
+        ajax.done(function(res){
+            flash_message("Deactivated")
+            location.reload();
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
+    
     }
 
     // Updates the flash message area

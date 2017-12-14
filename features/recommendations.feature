@@ -69,3 +69,15 @@ Scenario: Delete a recommendation
     Then I should see "29" in the search_results
     And I press the "delete_1" button
     And I should see the message "Deleted"
+
+Scenario: Activate a Recommendation Type
+    When I visit the "Recommendation Details" page
+    Then I should see "Status: False" in "cross-sell-3-status"
+    And I press the "cross-sell-3-activate" button
+    And I should see "Status: True" in "cross-sell-3-status"
+
+Scenario: Deactivate a Recommendation Type
+    When I visit the "Recommendation Details" page
+    Then I should see "Status: True" in "up-sell-1-status"
+    And I press the "up-sell-1-deactivate" button
+    And I should see "Status: False" in "up-sell-1-status"
