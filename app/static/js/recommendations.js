@@ -1,27 +1,27 @@
 $(function () {
-    
+
         // ****************************************
         //  U T I L I T Y   F U N C T I O N S
         // ****************************************
-        
+
         // Updates the form with data from the response
         function update_form_data(res) {
             $("#product_id").val(res.product_id);
             $("#rec_product_id").val(res.rec_product_id);
             $("#rec_type_id").val(res.rec_type_id);
             $("#weight").val(res.weight);
-            
+
             if (res.available == true) {
                 $("#rec_available").val("true");
             } else {
                 $("#rec_available").val("false");
             }
         }
-        
+
         // ****************************************
         // Create or Update a Recommendation
         // ****************************************
-    
+
         $("#create-btn").click(function () {
             var rec_id = $("#rec_id").val();
             var verb = "POST"
@@ -37,79 +37,85 @@ $(function () {
             var product_id = $("#product_id").val();
             var rec_product_id = $("#rec_product_id").val();
             var rec_type_id = $("#rec_type_id").val();
-            var weight = $("#weight").val();
-    
+            var weight_id = $("#weight_id").val();
+
+            console.log(product_id);
+            console.log(rec_product_id);
+            console.log(rec_type_id);
+            console.log(weight_id);
+
             var data = {
                 "product_id": parseInt(product_id),
                 "rec_product_id": parseInt(rec_product_id),
                 "rec_type_id": parseInt(rec_type_id),
-                "weight": parseFloat(weight)
+                "weight": parseFloat(weight_id)
             };
-    
+            console.log(data);
+
             var ajax = $.ajax({
                 type: verb,
                 url: url,
                 contentType:"application/json",
                 data: JSON.stringify(data),
             });
-    
+
             ajax.done(function(res){
                 update_form_data(res)
                 flash_message(message)
             });
-    
+
             ajax.fail(function(res){
                 flash_message(res.responseJSON.message)
             });
         });
-    
+
         // ****************************************
         // Retrieve a Recommendation
         // ****************************************
-    
+
         $("#retrieve-btn").click(function () {
-    
+
             var rec_id = $("#rec_id").val();
-    
+
             var ajax = $.ajax({
                 type: "GET",
                 url: "/recommendations/" + rec_id,
                 contentType:"application/json",
                 data: ''
             })
-    
+
             ajax.done(function(res){
                 update_form_data(res)
                 flash_message("Successfully retrieved recommendation: " + rec_id)
             });
-    
+
             ajax.fail(function(res){
                 clear_form_data()
                 flash_message(res.responseJSON.message)
             });
-    
+
         });
-    
+
         // ****************************************
         // Clear the form
         // ****************************************
-    
+
         $("#clear-btn").click(function () {
             $("#rec_id").val("");
             clear_form_data()
         });
-    
+
         // ****************************************
         // Search for a Recommendation
         // ****************************************
-    
+
         $("#search-btn").click(function () {
-    
+
             var product_id = $("#product_id_search").val();
             var type_name = $("#rec_type_name").val();
-    
+
             var queryString = ""
-    
+
             if (type_name) {
                 queryString += 'type=' + type_name
             }
@@ -121,14 +127,14 @@ $(function () {
                     queryString += 'product_id=' + product_id
                 }
             }
-    
+
             var ajax = $.ajax({
                 type: "GET",
                 url: "/recommendations?" + queryString,
                 contentType:"application/json",
                 data: ''
             })
-    
+
             ajax.done(function(res){
                 $("#search_results").empty();
                 var html = "<table id='search_results' class='table table-bordered table-striped dataTable'"
@@ -164,16 +170,16 @@ $(function () {
                 html += '</table>'
 
                 $("#search_results").append(html);
-    
+
                 flash_message("Success")
             });
-    
+
             ajax.fail(function(res){
                 flash_message(res.responseJSON.message)
             });
-    
+
         });
-    
+
     })
 
     function confirm_delete(id) {
@@ -184,12 +190,12 @@ $(function () {
                 contentType:"application/json",
                 data: '',
             })
-    
+
             ajax.done(function(res){
                 alert("Recommendation with ID [" + id + "] has been Deleted!")
                 if(!json.error) location.reload(true);
             });
-    
+
             ajax.fail(function(res){
                 flash_message("Server error!")
             });
@@ -200,7 +206,7 @@ $(function () {
     }
 
     function edit_row(id) {
-        
+
         var ajax = $.ajax({
             type: "GET",
             url: "/recommendations/" + id,
@@ -214,7 +220,7 @@ $(function () {
             $("#rec_product_id").val(res.rec_product_id);
             $("#rec_type_id").val(res.rec_type_id);
             $("#weight").val(res.weight);
-            
+
             if (res.available == true) {
                 $("#rec_available").val("true");
             } else {
@@ -227,7 +233,7 @@ $(function () {
         ajax.fail(function(res){
             clear_form_data()
             flash_message(res.responseJSON.message)
-        });   
+        });
     }
 
     // Updates the flash message area
@@ -241,5 +247,5 @@ $(function () {
         $("#product_id").val('');
         $("#rec_product_id").val('');
         $("#rec_type_id").val('1');
-        $("#weight").val('');
+        $("#weight_id").val('');
     }

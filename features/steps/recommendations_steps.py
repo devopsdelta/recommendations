@@ -53,7 +53,6 @@ def step_impl(context, message):
 def step_impl(context):
     """ Check to make sure there is no 404 message """
     context.resp = requests.get(context.base_url)
-    print (context.resp.status_code)
     assert context.resp.status_code != str(404)
 
 @when(u'I visit the "Recommendation Details" page for recommendation detail "{message}"')
@@ -83,7 +82,6 @@ def step_impl(context):
     context.driver.get(context.base_url+"/recommendations/detail/1")
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, 'rec_type')))
     context.driver.save_screenshot('line84.png')
-    print (found.text)
 
     assert found.text == '2'
     assert found.text != 'batman'
@@ -147,11 +145,28 @@ def step_impl(context, message):
 @when(u'I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
     url = context.base_url+"/recommendations/manage?" + element_name.lower() + "=" + text_string.lower()
-    print (url)
     context.driver.get(url)
-    print (element_name)
-    print (text_string)
     element_id = 'rec_type_name'
-    print (element_id)
     element = context.driver.find_element_by_id(element_id)
     element.send_keys(text_string)
+
+#===============================================================================================
+# CREATE A RECOMMENDATIONS
+#===============================================================================================
+@when(u'I enter the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = element_name.lower() + '_id'
+    element = context.driver.find_element_by_id(element_id)
+    element.send_keys(text_string)
+
+@then(u'I should see the message "{message}"')
+def step_impl(context, message):
+    #element = context.driver.find_element_by_id('flash_message')
+    #expect(element.text).to_contain(message)
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'flash_message'),
+            message
+        )
+    )
+    expect(found).to_be(True)

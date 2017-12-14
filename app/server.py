@@ -138,6 +138,9 @@ class RecommendationCollection(Resource):
 
         return results, status.HTTP_200_OK
 
+    ######################################################################
+    #  CREATE A RECOMMENDATION
+    ######################################################################
     @ns.doc('create_recommendation')
     @ns.expect(expected_create_model)
     @ns.response(400, 'The posted data was not valid')
