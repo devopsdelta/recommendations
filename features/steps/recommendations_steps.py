@@ -195,5 +195,10 @@ def step_impl(context, button):
 
 @then(u'I should see "{value}" in "{element_id}"')
 def step_impl(context, value, element_id):
-    element = context.driver.find_element_by_id(element_id)
-    expect(value in element.text).to_be(True)
+    found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, element_id),
+            value
+        )
+    )
+    expect(found).to_be(True)
