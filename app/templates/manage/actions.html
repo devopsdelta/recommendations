@@ -1,0 +1,35 @@
+<div class="box box-default">
+    <div class="box-header with-border">
+        <h3 class="box-title">Actions</h3>
+        <div class="box-tools pull-right">
+        </div>
+    </div>
+    <!-- /.box-header -->
+    <div class="box-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table>
+                    <tr>
+                        <th>Recommendation Type</th>
+                        <th></th>
+                    </tr>
+                    {% for type in result %}
+                    <tr>
+                        <td>
+                            <span>Type: {{type.name}}</span><br />
+                            <div id="{{type.name}}-{{type.id}}-status">Status: {{ type.is_active }}</div>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" id="{{type.name}}-{{type.id}}-activate-btn" onclick="activate({{type.id}})">Activate</button>
+                            <button class="btn btn-primary" id="{{type.name}}-{{type.id}}-deactivate-btn" onclick="deactivate({{type.id}})">Deactivate</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <div id="search_results">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.box-body -->
+</div>
