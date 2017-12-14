@@ -62,3 +62,10 @@ Scenario: Update a Recommendation
     And I press the "Save" button
     And I should see the message "Updated"
     And I should see "8755" in the "product_id" field
+
+Scenario: Delete a recommendation
+    When I visit the "Recommendation Details" page
+    And I press the "Search" button
+    Then I should see "29" in the search_results
+    And I press the "delete_1" button
+    And I should see the message "Deleted"

@@ -191,4 +191,4 @@ def step_impl(context, value, element_id):
 def step_impl(context, button):
     button_id = button.lower() + '-btn'
     context.driver.find_element_by_id(button_id).click()
-    context.driver.save_screenshot('line190.png')
+    context.driver.save_screenshot(button_id+'.png')
