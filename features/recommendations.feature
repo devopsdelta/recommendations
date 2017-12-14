@@ -22,7 +22,7 @@ Scenario: Get a recommendation
     And I will see a "rec_type_id" with "2" in my results
     And I will see a "rec_product_id" with "51" in my results
     And I will see a "weight" with "0.2" in my results
-    #And I should not see "rof-riders" in my results
+    And I should not see "rof-riders" in my results
 
 Scenario: List all recommendations
     When I visit the "Recommendation Details" page
@@ -34,49 +34,31 @@ Scenario: List all recommendations
 
 Scenario: List all up-sell recommendations
     When I visit the "Recommendation Details" page
-    And I set the "Type" to "up-sell"
+    And I set the "rec_type_name" to "up-sell"
     And I press the "Search" button
     Then I should see "567" in the search_results
     And I should not see "29" in the search_results
     And I should not see "23" in the search_results
 
-Scenario: Create a Recommenation
+Scenario: Create a Recommendation
     When I visit the "Recommendation Details" page
     And I enter the "Product" to "84"
     And I enter the "Rec_Product" to "621"
     And I enter the "Rec_Type" to "Accessory"
     And I enter the "Weight" to "0.8"
-    And I press the "Create" button
+    And I press the "Save" button
     Then I should see the message "Created"
 
- # Scenario: List all pets
- #     When I visit the "Home Page"
- #     And I press the "Search" button
- #     Then I should see "fido" in the results
- #     And I should see "kitty" in the results
- #     And I should see "leo" in the results
- #
- # Scenario: List all dogs
- #     When I visit the "Home Page"
- #     And I set the "Category" to "dog"
- #     And I press the "Search" button
- #     Then I should see "fido" in the results
- #     And I should not see "kitty" in the results
- #     And I should not see "leo" in the results
- #
- # #tbd
- # Scenario: Update a Pet
- #     When I visit the "Home Page"
- #     And I set the "Id" to "1"
- #     And I press the "Retrieve" button
- #     Then I should see "fido" in the "Name" field
- #     When I change "Name" to "Boxer"
- #     And I press the "Update" button
- #     Then I should see the message "Success"
- #     When I set the "Id" to "1"
- #     And I press the "Retrieve" button
- #     Then I should see "Boxer" in the "Name" field
- #     When I press the "Clear" button
- #     And I press the "Search" button
- #     Then I should see "Boxer" in the results
- #     Then I should not see "fido" in the results
+Scenario: Update a Recommendation
+    When I visit the "Recommendation Details" page
+    And I press the "Search" button
+    And I press the "edit_1" button
+    Then I should see "1" in the "rec_id" field
+    And I should see "29" in the "product_id" field
+    And I should see "2" in the "rec_type_id" field
+    And I should see "51" in the "rec_product_id" field
+    And I should see "0.2" in the "weight_id" field
+    And I set the "product_id" to "8755"
+    And I press the "Save" button
+    And I should see the message "Updated"
+    And I should see "8755" in the "product_id" field
