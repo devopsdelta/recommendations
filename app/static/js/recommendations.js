@@ -178,26 +178,23 @@ $(function () {
     })
 
     function confirm_delete(id) {
-        if(confirm("Are you sure you want to delete this?")){
-            var ajax = $.ajax({
-                type: "DELETE",
-                url: "/recommendations/" + id,
-                contentType:"application/json",
-                data: '',
-            })
+        var ajax = $.ajax({
+            type: "DELETE",
+            url: "/recommendations/" + id,
+            contentType:"application/json",
+            data: '',
+        })
 
-            ajax.done(function(res){
-                alert("Recommendation with ID [" + id + "] has been Deleted!")
-                if(!json.error) location.reload(true);
-            });
+        ajax.done(function(res){
+            // alert("Recommendation with ID [" + id + "] has been Deleted!")
+            flash_message("Deleted")
+            if(!json.error) location.reload(true);
+        });
 
-            ajax.fail(function(res){
-                flash_message("Server error!")
-            });
-        }
-        else{
-            return false;
-        }
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
+    
     }
 
     function edit_row(id) {        
